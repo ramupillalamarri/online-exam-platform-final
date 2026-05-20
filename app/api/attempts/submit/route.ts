@@ -1,0 +1,150 @@
+import { NextResponse } from 'next/server';
+import { query } from '@/lib/db';
+
+export async function POST(req: Request) {
+  try {
+    const { attemptId } = await req.json();
+    if (!attemptId) {
+      return NextResponse.json({ error: 'Attempt ID is required' }, { status: 400 });
+    }
+
+    // 1. Fetch the attempt details
+    const attemptRes = await query('SELECT * FROM attempts WHERE id = $1', [attemptId]);
+    if (attemptRes.rowCount === 0) {
+      return NextResponse.json({ error: 'Attempt not found' }, { status: 404 });
+    }
+    const attempt = attemptRes.rows[0];
+
+    // 2. Fetch the exam details
+    const examRes = await query('SELECT * FROM exams WHERE id = $1', [attempt.exam_id]);
+    if (examRes.rowCount === 0) {
+      return NextResponse.json({ error: 'Exam not found' }, { status: 404 });
+    }
+    const exam = examRes.rows[0];
+
+    // 3. Fetch all questions for this exam
+    const questionsRes = await query('SELECT * FROM questions WHERE exam_id = $1', [attempt.exam_id]);
+    const questions = questionsRes.rows;
+
+    // 4. Fetch all student answers for this attempt
+    const answersRes = await query('SELECT * FROM answers WHERE attempt_id = $1', [attemptId]);
+    const answers = answersRes.rows;
+
+    let score = 0;
+    const totalMarks = questions.reduce((sum, q) => sum + (q.marks || 2), 0);
+
+    // 5. Grade each answer
+    for (const answer of answers) {
+      const question = questions.find((q) => q.id === answer.question_id);
+      if (!question) continue;
+
+      const isCorrect = answer.selected_option_id === question.correct_option_id;
+      
+      // Update is_correct status in DB
+      await query(
+        'UPDATE answers SET is_correct = $1 WHERE id = $2',
+        [isCorrect, answer.id]
+      );
+
+      if (isCorrect) {
+        score += (question.marks || 2);
+      } else if (answer.selected_option_id && exam.negative_marking) {
+        score -= (question.marks || 2) * parseFloat(exam.negative_marking);
+      }
+    }
+
+    score = Math.max(0, score);
+    
+    // Calculate rank (mock rank formula, but persistent)
+    const rank = Math.min(20, Math.ceil((1 - (score / (totalMarks || 1))) * 20) + 1);
+
+    // 6. Update attempt in DB
+    const updatedAttemptRes = await query(`
+      UPDATE attempts 
+      SET 
+        status = 'graded', 
+        submitted_at = NOW(), 
+        score = $1, 
+        total_marks = $2, 
+        rank = $3
+      WHERE id = $4
+      RETURNING 
+        id, 
+        exam_id as "examId", 
+        user_id as "userId", 
+        status, 
+        started_at as "startedAt", 
+        submitted_at as "submittedAt", 
+        score::numeric::double precision as "score", 
+        total_marks as "totalMarks", 
+        rank, 
+        warnings
+    `, [score, totalMarks, rank, attemptId]);
+
+    const updatedAttempt = updatedAttemptRes.rows[0];
+
+    // 7. Generate AI Feedback
+    const wrongAnswers = answers.filter((ans) => {
+      const q = questions.find((qi) => qi.id === ans.question_id);
+      return ans.selected_option_id && ans.selected_option_id !== q?.correct_option_id;
+    });
+
+    const mistakeAnalysis = wrongAnswers.map((ans) => {
+      const q = questions.find((qi) => qi.id === ans.question_id)!;
+      const selected = q.options.find((o: any) => o.id === ans.selected_option_id);
+      const correct = q.options.find((o: any) => o.id === q.correct_option_id);
+      return {
+        questionId: ans.question_id,
+        explanation: `You selected "${selected?.text || ans.selected_option_id}" but the correct answer is "${correct?.text || q.correct_option_id}". ${
+          q.topic ? `This question tests your understanding of ${q.topic}.` : ''
+        } Review the concept and practice similar problems.`
+      };
+    });
+
+    // Group wrong answers by topic to find weak areas
+    const topicCounts: Record<string, { subject: string; count: number }> = {};
+    wrongAnswers.forEach((ans) => {
+      const q = questions.find((qi) => qi.id === ans.question_id);
+      if (!q) return;
+      const topic = q.topic || 'General';
+      const subject = q.subject || 'General';
+      if (!topicCounts[topic]) {
+        topicCounts[topic] = { subject, count: 0 };
+      }
+      topicCounts[topic].count++;
+    });
+
+    const weakTopics = Object.entries(topicCounts).map(([topic, data]) => ({
+      topic,
+      subject: data.subject,
+      questionCount: data.count,
+      recommendation: `Focus on practicing more ${topic} problems to strengthen your understanding.`
+    }));
+
+    // Store AI Feedback in DB
+    const feedbackId = Math.random().toString(36).substring(2, 15);
+    await query(`
+      INSERT INTO ai_feedback (id, attempt_id, mistake_analysis, weak_topics)
+      VALUES ($1, $2, $3, $4)
+      ON CONFLICT (id) DO NOTHING
+    `, [feedbackId, attemptId, JSON.stringify(mistakeAnalysis), JSON.stringify(weakTopics)]);
+
+    return NextResponse.json({
+      success: true,
+      attempt: {
+        ...updatedAttempt,
+        examTitle: exam.title
+      },
+      feedback: {
+        id: feedbackId,
+        attemptId,
+        mistakeAnalysis,
+        weakTopics,
+        createdAt: new Date()
+      }
+    });
+  } catch (error: any) {
+    console.error('Submit Attempt Error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
