@@ -1,0 +1,539 @@
+"use client"
+
+import { motion } from "framer-motion"
+import { useExamStore } from "@/lib/store"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import {
+  Users,
+  FileText,
+  ClipboardList,
+  TrendingUp,
+  ArrowUp,
+  ArrowDown,
+  Plus,
+  Sparkles,
+  FolderOpen,
+  BarChart3,
+  Edit2
+} from "lucide-react"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Area,
+  AreaChart,
+} from "recharts"
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+}
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+}
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+}
+
+export default function AdminDashboard() {
+  const router = useRouter()
+  const { exams, attempts, folders } = useExamStore()
+
+  const publishedExams = exams.filter((e) => e.isPublished)
+  const totalAttempts = attempts.length
+  const gradedAttempts = attempts.filter((a) => a.status === "graded")
+  const averageScore =
+    gradedAttempts.length > 0
+      ? gradedAttempts.reduce((sum, a) => sum + ((a.score || 0) / (a.totalMarks || 1)) * 100, 0) /
+        gradedAttempts.length
+      : 0
+
+  const stats = [
+    {
+      title: "Total Exams",
+      value: exams.length,
+      description: `${publishedExams.length} published`,
+      icon: FileText,
+      trend: "+12%",
+      trendUp: true,
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+      borderColor: "border-primary/20",
+    },
+    {
+      title: "Total Attempts",
+      value: totalAttempts,
+      description: `${gradedAttempts.length} completed`,
+      icon: ClipboardList,
+      trend: "+8%",
+      trendUp: true,
+      color: "text-accent",
+      bgColor: "bg-accent/10",
+      borderColor: "border-accent/20",
+    },
+    {
+      title: "Folders",
+      value: folders.length,
+      description: "Organizing exams",
+      icon: FolderOpen,
+      trend: null,
+      trendUp: null,
+      color: "text-chart-3",
+      bgColor: "bg-chart-3/10",
+      borderColor: "border-chart-3/20",
+    },
+    {
+      title: "Avg. Score",
+      value: `${averageScore.toFixed(1)}%`,
+      description: "Across all exams",
+      icon: TrendingUp,
+      trend: averageScore > 60 ? "+5%" : "-3%",
+      trendUp: averageScore > 60,
+      color: "text-success",
+      bgColor: "bg-success/10",
+      borderColor: "border-success/20",
+    },
+  ]
+
+  // Chart data
+  const examAttemptData = exams
+    .filter((e) => e.isPublished)
+    .slice(0, 5)
+    .map((exam) => ({
+      name: exam.title.length > 15 ? exam.title.substring(0, 15) + "..." : exam.title,
+      attempts: exam.attemptCount || 0,
+    }))
+
+  const scoreDistribution = [
+    { name: "0-40%", value: 2, color: "var(--destructive)" },
+    { name: "40-60%", value: 5, color: "var(--warning)" },
+    { name: "60-80%", value: 8, color: "var(--accent)" },
+    { name: "80-100%", value: 4, color: "var(--success)" },
+  ]
+
+  const weeklyData = [
+    { day: "Mon", attempts: 12, score: 65 },
+    { day: "Tue", attempts: 19, score: 72 },
+    { day: "Wed", attempts: 15, score: 68 },
+    { day: "Thu", attempts: 25, score: 78 },
+    { day: "Fri", attempts: 22, score: 75 },
+    { day: "Sat", attempts: 8, score: 82 },
+    { day: "Sun", attempts: 5, score: 70 },
+  ]
+
+  return (
+    <div className="p-4 md:p-6 lg:p-8 space-y-6 min-h-screen">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-2"
+      >
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Admin Dashboard</h1>
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat, repeatDelay: 3 }}
+            >
+              <BarChart3 className="h-6 w-6 text-primary" />
+            </motion.div>
+          </div>
+          <p className="text-muted-foreground">
+            Overview of your examination platform
+          </p>
+        </div>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button onClick={() => router.push('/admin/exams/new')} className="shadow-lg shadow-primary/20 bg-gradient-to-r from-primary to-accent">
+            <Plus className="mr-2 h-4 w-4" />
+            Create Exam
+          </Button>
+        </motion.div>
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-3"
+      >
+        {[
+          { icon: FileText, label: "Manage Exams", href: "/admin/exams", color: "bg-primary/10 text-primary hover:bg-primary/20" },
+          { icon: FolderOpen, label: "Folders", href: "/admin/folders", color: "bg-accent/10 text-accent hover:bg-accent/20" },
+          { icon: Users, label: "Students", href: "/admin/students", color: "bg-chart-3/10 text-chart-3 hover:bg-chart-3/20" },
+          { icon: Sparkles, label: "AI Insights", href: "/admin/students", color: "bg-success/10 text-success hover:bg-success/20" },
+        ].map((action) => (
+          <motion.div
+            key={action.label}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Link href={action.href}>
+              <Card className={`${action.color} border-0 cursor-pointer transition-colors shadow-sm`}>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <action.icon className="h-5 w-5" />
+                  <span className="font-semibold text-sm">{action.label}</span>
+                </CardContent>
+              </Card>
+            </Link>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Stats Cards */}
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+        className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
+      >
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.title}
+            variants={scaleIn}
+            whileHover={{ y: -4, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <Card className={`border-2 ${stat.borderColor} bg-card/80 backdrop-blur-sm hover:shadow-lg transition-shadow cursor-pointer`} onClick={() => {
+              if (stat.title === "Folders") router.push('/admin/folders')
+              else if (stat.title === "Total Exams") router.push('/admin/exams')
+            }}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                <motion.div
+                  whileHover={{ rotate: 5, scale: 1.1 }}
+                  className={`h-9 w-9 rounded-xl ${stat.bgColor} flex items-center justify-center`}
+                >
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                </motion.div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-foreground">{stat.value}</div>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-muted-foreground">
+                    {stat.description}
+                  </span>
+                  {stat.trend && (
+                    <span
+                      className={`text-xs font-medium flex items-center ${
+                        stat.trendUp ? "text-success" : "text-destructive"
+                      }`}
+                    >
+                      {stat.trendUp ? (
+                        <ArrowUp className="h-3 w-3" />
+                      ) : (
+                        <ArrowDown className="h-3 w-3" />
+                      )}
+                      {stat.trend}
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Charts */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Attempts by Exam */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Attempts by Exam</CardTitle>
+              <CardDescription>Number of attempts per published exam</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[280px]">
+                {examAttemptData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={examAttemptData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" horizontal={true} vertical={false} />
+                      <XAxis type="number" className="text-xs fill-muted-foreground" axisLine={false} tickLine={false} />
+                      <YAxis
+                        type="category"
+                        dataKey="name"
+                        width={100}
+                        className="text-xs fill-muted-foreground"
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--card))",
+                          border: "1px solid hsl(var(--border))",
+                          borderRadius: "var(--radius)",
+                        }}
+                      />
+                      <Bar dataKey="attempts" fill="hsl(var(--primary))" radius={[0, 8, 8, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="text-center">
+                      <motion.div
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4 mx-auto"
+                      >
+                        <BarChart3 className="h-8 w-8 text-muted-foreground" />
+                      </motion.div>
+                      <p className="text-muted-foreground">No exam data yet</p>
+                      <p className="text-sm text-muted-foreground/70">Publish exams to see analytics</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Score Distribution */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="text-lg">Score Distribution</CardTitle>
+              <CardDescription>Distribution of student scores</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[280px] flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={scoreDistribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={4}
+                      dataKey="value"
+                      label={({ name, percent }) =>
+                        `${name}`
+                      }
+                      labelLine={false}
+                    >
+                      {scoreDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "var(--radius)",
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-wrap justify-center gap-4 mt-4">
+                {scoreDistribution.map((item) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-xs text-muted-foreground">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Weekly Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="lg:col-span-2"
+        >
+          <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Weekly Activity</CardTitle>
+                  <CardDescription>Number of exam attempts and average scores</CardDescription>
+                </div>
+                <div className="flex gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-primary" />
+                    <span className="text-muted-foreground">Attempts</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-accent" />
+                    <span className="text-muted-foreground">Avg Score</span>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[280px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={weeklyData}>
+                    <defs>
+                      <linearGradient id="colorAttempts" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                      </linearGradient>
+                      <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--accent))" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" vertical={false} />
+                    <XAxis dataKey="day" className="text-xs fill-muted-foreground" axisLine={false} tickLine={false} />
+                    <YAxis className="text-xs fill-muted-foreground" axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "var(--radius)",
+                      }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="attempts"
+                      stroke="hsl(var(--primary))"
+                      fillOpacity={1}
+                      fill="url(#colorAttempts)"
+                      strokeWidth={2}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="score"
+                      stroke="hsl(var(--accent))"
+                      fillOpacity={1}
+                      fill="url(#colorScore)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Recent Exams */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+      >
+        <Card className="border-border/50 bg-card/80 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">Recent Exams</CardTitle>
+                <CardDescription>Latest exams created in the platform</CardDescription>
+              </div>
+              <Link href="/admin/exams">
+                <Button variant="ghost" size="sm" className="text-primary font-semibold">
+                  View All
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {exams.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12">
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="h-16 w-16 rounded-2xl bg-muted flex items-center justify-center mb-4"
+                >
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                </motion.div>
+                <p className="text-muted-foreground mb-1">No exams created yet</p>
+                <p className="text-sm text-muted-foreground/70">Create your first exam to get started</p>
+                <Button size="sm" className="mt-4" onClick={() => router.push('/admin/exams/new')}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Exam
+                </Button>
+              </div>
+            ) : (
+              <motion.div
+                variants={staggerContainer}
+                initial="hidden"
+                animate="visible"
+                className="space-y-3"
+              >
+                {exams.slice(0, 5).map((exam) => (
+                  <motion.div
+                    key={exam.id}
+                    variants={fadeInUp}
+                    whileHover={{ scale: 1.01, x: 4 }}
+                    className="flex flex-wrap sm:flex-nowrap items-center justify-between p-4 rounded-xl border border-border/50 bg-background/50 hover:bg-background transition-colors shadow-sm gap-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <motion.div
+                        whileHover={{ rotate: 5, scale: 1.1 }}
+                        className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-glow-1/10 flex items-center justify-center shrink-0 border border-primary/10"
+                      >
+                        <FileText className="h-5 w-5 text-primary" />
+                      </motion.div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-foreground truncate max-w-[200px] sm:max-w-md">{exam.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {exam.folderName || "No folder"} • {exam.questionCount || 0} questions
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                      <div className="text-right">
+                        <p className="text-xs font-semibold text-foreground mb-1">
+                          {exam.attemptCount || 0} attempts
+                        </p>
+                        <Badge
+                          variant="outline"
+                          className={exam.isPublished 
+                            ? "bg-success/10 text-success border-success/20 text-[10px]" 
+                            : "bg-muted text-muted-foreground text-[10px]"
+                          }
+                        >
+                          {exam.isPublished ? "Published" : "Draft"}
+                        </Badge>
+                      </div>
+                      <Button onClick={() => router.push(`/admin/exams/${exam.id}`)} variant="outline" size="sm" className="h-8 gap-1 border-dashed hover:border-primary/50">
+                        <Edit2 className="h-3 w-3" />
+                        Edit
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  )
+}
