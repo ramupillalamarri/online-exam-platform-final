@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useExamStore } from "@/lib/store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,62 +24,52 @@ import {
   FileText,
   Clock,
   ChevronRight,
-  Filter
+  Filter,
+  RotateCcw
 } from "lucide-react"
 
 export default function StudentsPage() {
-  const { exams, attempts, aiFeedback } = useExamStore()
+  const { exams, fetchData } = useExamStore()
   const [searchQuery, setSearchQuery] = useState("")
+  const [students, setStudents] = useState([])
+  const [attemptsData, setAttemptsData] = useState([])
+  const [aiInsightsData, setAiInsightsData] = useState([])
+  const [isClearing, setIsClearing] = useState(false)
 
-  // Calculate student aggregations
+  useEffect(() => {
+    const loadStudentData = async () => {
+      try {
+        const res = await fetch('/api/students')
+        if (!res.ok) throw new Error('Failed to fetch students data')
+        const data = await res.json()
+        setStudents(data.students || [])
+        setAttemptsData(data.attempts || [])
+        setAiInsightsData(data.aiInsights || [])
+      } catch (error) {
+        console.error('Failed to load students data:', error)
+      }
+    }
+
+    loadStudentData()
+  }, [])
+
   const studentStats = useMemo(() => {
-    const statsMap = {}
-
-    attempts.filter(a => a.status === "graded").forEach(attempt => {
-      // Mock student email since we don't have a strict global users list, we derive from attempts.
-      // In a real app we'd fetch users list. Here we'll just mock it based on attempt.userId
-      const sId = attempt.userId
-      const email = sId === "demo-student-123" ? "demo.student@exampro.com" : `student_${sId.substring(0,4)}@school.edu`
-      
-      if (!statsMap[sId]) {
-        statsMap[sId] = { email, attemptsCount: 0, totalScore: 0, totalMax: 0, lastActive: attempt.submittedAt || "" }
-      }
-
-      statsMap[sId].attemptsCount++
-      statsMap[sId].totalScore += (attempt.score || 0)
-      statsMap[sId].totalMax += (attempt.totalMarks || 1)
-      
-      if (attempt.submittedAt && new Date(attempt.submittedAt) > new Date(statsMap[sId].lastActive)) {
-        statsMap[sId].lastActive = attempt.submittedAt
-      }
-    })
-
-    return Object.entries(statsMap).map(([id, data]) => ({
-      id,
-      email: data.email,
-      attempts: data.attemptsCount,
-      avgScore: ((data.totalScore / data.totalMax) * 100),
-      lastActive: new Date(data.lastActive).toLocaleDateString()
+    return students.map((student) => ({
+      id: student.id,
+      email: student.email,
+      attempts: student.attemptCount,
+      avgScore: Number(student.avgScore || 0),
+      lastActive: student.lastActive
+        ? new Date(student.lastActive).toLocaleDateString()
+        : new Date(student.createdAt).toLocaleDateString(),
     }))
-  }, [attempts])
+  }, [students])
 
   const filteredStudents = studentStats.filter(s => s.email.toLowerCase().includes(searchQuery.toLowerCase()))
 
-  // Compute Class AI Insights
   const classInsights = useMemo(() => {
-    const weakTopics = {}
-    aiFeedback.forEach(fb => {
-      if (Array.isArray(fb.weakTopics)) {
-        fb.weakTopics.forEach((wt) => {
-          weakTopics[wt.topic] = (weakTopics[wt.topic] || 0) + (wt.questionCount || 1)
-        })
-      }
-    })
-    return Object.entries(weakTopics)
-      .map(([topic, count]) => ({ topic, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 3)
-  }, [aiFeedback])
+    return aiInsightsData.slice(0, 3)
+  }, [aiInsightsData])
 
   return (
     <div className="p-4 md:p-6 lg:p-8 space-y-6 min-h-screen">
@@ -117,7 +107,7 @@ export default function StudentsPage() {
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-primary/5 border border-primary/10">
                 <span className="text-sm font-medium text-muted-foreground">Total Submissions</span>
-                <span className="font-bold text-primary text-lg">{attempts.filter(a => a.status === 'graded').length}</span>
+                <span className="font-bold text-primary text-lg">{attemptsData.length}</span>
               </div>
               <div className="flex justify-between items-center p-3 rounded-lg bg-success/5 border border-success/10">
                 <span className="text-sm font-medium text-muted-foreground">Class Average</span>
@@ -166,14 +156,53 @@ export default function StudentsPage() {
             <CardHeader className="pb-4 border-b border-border/50">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <CardTitle className="text-lg">Student Roster</CardTitle>
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search by email..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9 h-9"
-                  />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search by email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 h-9"
+                    />
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    disabled={isClearing}
+                    onClick={async () => {
+                      if (!window.confirm('Clear ALL exam attempt history, rankings, and AI feedback?\n\nThis will reset the database to show only students, teachers, and available exams. This cannot be undone.')) return
+                      
+                      setIsClearing(true)
+                      try {
+                        const res = await fetch('/api/db/reset', { method: 'DELETE' })
+                        if (res.ok) {
+                          const data = await res.json()
+                          
+                          // Reset local UI state
+                          setStudents((prev) => prev.map((student) => ({ ...student, attemptCount: 0, avgScore: 0, lastActive: null })))
+                          setAttemptsData([])
+                          setAiInsightsData([])
+                          
+                          // Reload Zustand store to sync with cleared DB
+                          await fetchData()
+                          
+                          alert('✓ Database reset successfully!\n\n' + data.message)
+                        } else {
+                          const data = await res.json()
+                          alert('❌ Error: ' + (data.error || 'Failed to reset database.'))
+                        }
+                      } catch (error) {
+                        console.error('Reset Error:', error)
+                        alert('❌ Error: ' + error.message)
+                      } finally {
+                        setIsClearing(false)
+                      }
+                    }}
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
+                    {isClearing ? 'Resetting...' : 'Reset Database'}
+                  </Button>
                 </div>
               </div>
             </CardHeader>

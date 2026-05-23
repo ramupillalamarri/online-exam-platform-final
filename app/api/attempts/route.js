@@ -77,12 +77,33 @@ export async function POST( req) {
       });
     }
 
-    // Fetch exam title
-    const examRes = await query('SELECT title, duration_minutes FROM exams WHERE id = $1', [examId]);
-    if (examRes.rowCount === 0) {
-      return NextResponse.json({ error: 'Exam not found' }, { status: 404 });
+    // Fetch exam and determine max attempts (fallback to 2 if DB doesn't have column)
+    // Check if exams table has a max_attempts column
+    let maxAttempts = 2;
+    const colRes = await query("SELECT column_name FROM information_schema.columns WHERE table_name = 'exams' AND column_name = 'max_attempts'");
+    let exam;
+    if (colRes.rowCount > 0) {
+      const examRes = await query('SELECT title, duration_minutes, max_attempts FROM exams WHERE id = $1', [examId]);
+      if (examRes.rowCount === 0) {
+        return NextResponse.json({ error: 'Exam not found' }, { status: 404 });
+      }
+      exam = examRes.rows[0];
+      maxAttempts = exam.max_attempts || 2;
+    } else {
+      const examRes = await query('SELECT title, duration_minutes FROM exams WHERE id = $1', [examId]);
+      if (examRes.rowCount === 0) {
+        return NextResponse.json({ error: 'Exam not found' }, { status: 404 });
+      }
+      exam = examRes.rows[0];
+      maxAttempts = 2;
     }
-    const exam = examRes.rows[0];
+
+    // Server-side enforcement: count completed (graded) attempts for this user
+    const completedRes = await query('SELECT COUNT(*)::integer as count FROM attempts WHERE exam_id = $1 AND user_id = $2 AND status = $3', [examId, userId, 'graded']);
+    const completedCount = completedRes.rows[0].count || 0;
+    if (completedCount >= maxAttempts) {
+      return NextResponse.json({ error: `Maximum ${maxAttempts} attempts allowed for this exam. You have already used all your attempts.` }, { status: 403 });
+    }
 
     const insertRes = await query(`
       INSERT INTO attempts (id, exam_id, user_id, status, started_at, score, total_marks, rank, warnings)

@@ -9,14 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import {
   GraduationCap,
   CheckCircle2,
   XCircle,
@@ -87,12 +79,9 @@ export default function ReviewPage({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          questionText: currentQuestion.questionText,
-          options: currentQuestion.options,
-          correctOptionId: currentQuestion.correctOptionId,
-          topic: currentQuestion.topic,
-          userDoubt: chatInput,
-          chatHistory: chatMessages // send previous history so AI remembers context
+          message: chatInput,
+          question: currentQuestion,
+          chatHistory: updatedMessages // send previous history so AI remembers context
         })
       })
 
@@ -102,9 +91,10 @@ export default function ReviewPage({
         throw new Error(data.error || "Failed to get AI response")
       }
 
+      const assistantContent = data.explanation || data.response || "Sorry, no answer was returned."
       setChatMessages([...updatedMessages, {
         role: "assistant",
-        content: data.explanation
+        content: assistantContent
       }])
     } catch (error) {
       console.error("AI Chat Error:", error)
@@ -152,7 +142,7 @@ export default function ReviewPage({
   const wasAnswered = !!currentAnswer?.selectedOptionId
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-card/85 backdrop-blur border-b border-border">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -175,39 +165,222 @@ export default function ReviewPage({
             </div>
           </div>
 
-          {/* AI Tutor Button */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button className="shrink-0 shadow-lg shadow-primary/20 bg-gradient-to-r from-primary to-accent border-0">
-                <MessageCircle className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">AI Tutor</span>
-                <span className="sm:hidden">Tutor</span>
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="w-full sm:max-w-md border-l border-border/50 bg-card/95 backdrop-blur-xl p-0 flex flex-col">
-              <SheetHeader className="p-4 border-b border-border/50 bg-muted/30">
-                <SheetTitle className="flex items-center gap-2 text-primary">
-                  <Sparkles className="h-5 w-5" />
-                  ExamPro AI Tutor
-                </SheetTitle>
-                <SheetDescription>
-                  Ask me to explain any doubts about Question {currentQuestionIndex + 1}.
-                </SheetDescription>
-              </SheetHeader>
+          <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
+            AI Tutor is available beside the question review panel.
+          </div>
+        </div>
+      </header>
 
-              <div className="flex flex-col flex-1 overflow-hidden p-4">
-                {/* Chat Messages */}
+      <main className="flex-1 container mx-auto px-4 py-3 sm:py-4 overflow-hidden max-h-[calc(100vh-4rem)]">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 h-full">
+          <div className="flex flex-col h-full space-y-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+                  disabled={currentQuestionIndex === 0}
+                  className="px-2 sm:px-3 h-8 text-sm"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5 mr-0.5" />
+                  Previous
+                </Button>
+                <span className="text-xs sm:text-xs font-medium text-muted-foreground">
+                  {currentQuestionIndex + 1} / {questions.length}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+                  disabled={currentQuestionIndex === questions.length - 1}
+                  className="px-2 sm:px-3 h-8 text-sm"
+                >
+                  Next
+                  <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+                </Button>
+              </div>
+
+              <Card className="border-border/50 shadow-sm">
+                <CardContent className="p-2">
+                  <h3 className="font-semibold text-xs text-foreground mb-2">Questions</h3>
+                  <div className="grid grid-cols-5 gap-1 max-h-[140px] overflow-y-auto pr-1">
+                    {questions.map((question, index) => {
+                      const answer = answers.find((a) => a.questionId === question.id)
+                      const correct = answer?.isCorrect
+                      const answered = !!answer?.selectedOptionId
+                      const isCurrent = index === currentQuestionIndex
+
+                      return (
+                        <button
+                          key={question.id}
+                          onClick={() => setCurrentQuestionIndex(index)}
+                          className={`h-7 w-7 rounded-lg text-[10px] font-semibold transition-colors flex items-center justify-center ${
+                            isCurrent ? "ring-2 ring-primary ring-offset-1 ring-offset-background" : ""
+                          } ${
+                            correct
+                              ? "bg-success/15 text-success border border-success/30 hover:bg-success/25"
+                              : answered
+                              ? "bg-destructive/15 text-destructive border border-destructive/30 hover:bg-destructive/25"
+                              : "bg-muted text-muted-foreground hover:bg-muted/80"
+                          }`}
+                        >
+                          {index + 1}
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/50 text-[10px] font-medium">
+                    <div className="flex items-center gap-1">
+                      <div className="h-2 w-2 rounded bg-success/20 border border-success/30" />
+                      <span className="text-muted-foreground">Correct</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="h-2 w-2 rounded bg-destructive/20 border border-destructive/30" />
+                      <span className="text-muted-foreground">Incorrect</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="h-2 w-2 rounded bg-muted border border-border" />
+                      <span className="text-muted-foreground">Skipped</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="mt-2">
+                <Link href={`/exam/${id}/result?attempt=${attemptId}`}>
+                  <Button variant="outline" className="w-full border-dashed hover:border-primary/50 text-[10px] h-7">
+                    <ArrowLeft className="h-3 w-3 mr-1" />
+                    Back to Results Summary
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-hidden">
+              <Card
+                className={`border-2 shadow-sm ${
+                  isCorrect
+                    ? "border-success/40 bg-success/5"
+                    : wasAnswered
+                    ? "border-destructive/40 bg-destructive/5"
+                    : "border-border/50"
+                } h-full overflow-hidden`}
+              >
+                <CardContent className="p-3 sm:p-4 h-full flex flex-col">
+                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                    <Badge variant="outline" className="bg-background text-xs">Q{currentQuestionIndex + 1}</Badge>
+                    <Badge variant="secondary" className="bg-background text-xs">{currentQuestion.marks} marks</Badge>
+                    {currentQuestion.topic && (
+                      <Badge variant="outline" className="text-[10px] bg-background">
+                        {currentQuestion.topic}
+                      </Badge>
+                    )}
+                    {isCorrect ? (
+                      <Badge className="bg-success text-white border-success ml-auto shadow-sm text-[10px]">
+                        <CheckCircle2 className="h-3 w-3 mr-0.5" />
+                        Correct
+                      </Badge>
+                    ) : wasAnswered ? (
+                      <Badge className="bg-destructive text-white border-destructive ml-auto shadow-sm text-[10px]">
+                        <XCircle className="h-3 w-3 mr-0.5" />
+                        Incorrect
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="ml-auto bg-muted text-[10px]">
+                        <Minus className="h-3 w-3 mr-0.5" />
+                        Skipped
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto space-y-2">
+                    <p className="text-sm sm:text-base font-medium text-foreground">
+                      {currentQuestion.questionText}
+                    </p>
+
+                    <div className="space-y-2">
+                      {currentQuestion.options.map((option) => {
+                        const isSelected = currentAnswer?.selectedOptionId === option.id
+                        const isCorrectOption = option.id === currentQuestion.correctOptionId
+
+                        return (
+                          <div
+                            key={option.id}
+                            className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
+                              isCorrectOption
+                                ? "border-success bg-success/10 shadow-sm"
+                                : isSelected
+                                ? "border-destructive bg-destructive/10 shadow-sm"
+                                : "border-border/50 bg-background/50"
+                            }`}
+                          >
+                            <span
+                              className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold uppercase shrink-0 ${
+                                isCorrectOption
+                                  ? "bg-success text-white shadow-md shadow-success/20"
+                                  : isSelected
+                                  ? "bg-destructive text-white shadow-md shadow-destructive/20"
+                                  : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {option.id}
+                            </span>
+                            <span className={`flex-1 text-xs sm:text-sm leading-snug ${isCorrectOption ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                              {option.text}
+                            </span>
+                            {isCorrectOption && (
+                              <CheckCircle2 className="h-4 w-4 text-success shrink-0" />
+                            )}
+                            {isSelected && !isCorrectOption && (
+                              <XCircle className="h-4 w-4 text-destructive shrink-0" />
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {mistakeAnalysis && (
+                      <Card className="border-accent/20 bg-accent/5 shadow-sm">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm flex items-center gap-2 text-accent">
+                            <Sparkles className="h-3.5 w-3.5" />
+                            AI Analysis
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                            {mistakeAnalysis.explanation}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <aside className="flex flex-col h-full">
+            <Card className="border-border/50 shadow-sm h-full overflow-hidden">
+              <CardHeader className="border-b border-border/50 bg-muted/30 p-4">
+                <div className="flex items-center gap-2 text-primary">
+                  <Sparkles className="h-5 w-5" />
+                  <CardTitle className="text-sm">ExamPro AI Tutor</CardTitle>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Ask your question about the current review and get a guided explanation.
+                </p>
+              </CardHeader>
+              <CardContent className="flex flex-col p-4 h-full">
                 <ScrollArea className="flex-1 pr-4 -mr-4">
                   <div className="space-y-4 pr-4">
-                    {/* Initial AI message */}
                     <div className="flex gap-3">
                       <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-md">
                         <Sparkles className="h-4 w-4 text-white" />
                       </div>
                       <div className="bg-muted/80 border border-border/50 rounded-2xl rounded-tl-sm p-3.5 text-sm shadow-sm">
                         <p className="leading-relaxed">
-                          Hi! I'm your AI tutor. I can see you are reviewing a question on <strong>{currentQuestion.topic || 'this topic'}</strong>.
-                          What doubts do you have about this problem?
+                          Hi! I'm your AI tutor. I can help explain the current question on <strong>{currentQuestion.topic || 'this topic'}</strong>.
                         </p>
                       </div>
                     </div>
@@ -215,9 +388,7 @@ export default function ReviewPage({
                     {chatMessages.map((message, index) => (
                       <div
                         key={index}
-                        className={`flex gap-3 ${
-                          message.role === "user" ? "flex-row-reverse" : ""
-                        }`}
+                        className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
                       >
                         <div
                           className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 shadow-md ${
@@ -239,7 +410,6 @@ export default function ReviewPage({
                               : "bg-muted/80 border border-border/50 rounded-tl-sm"
                           }`}
                         >
-                          {/* Rendering newlines correctly if AI returns multiline */}
                           <div className="whitespace-pre-wrap leading-relaxed">{message.content}</div>
                         </div>
                       </div>
@@ -262,7 +432,6 @@ export default function ReviewPage({
                   </div>
                 </ScrollArea>
 
-                {/* Chat Input */}
                 <div className="mt-4 pt-4 border-t border-border/50 flex gap-2">
                   <Input
                     placeholder="Type your doubt here..."
@@ -278,214 +447,12 @@ export default function ReviewPage({
                     <Send className="h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-      </header>
-
-      <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid lg:grid-cols-[1fr_260px] gap-6 items-start">
-            {/* Question Review */}
-            <div className="space-y-6">
-              <Card
-                className={`border-2 shadow-sm ${
-                  isCorrect
-                    ? "border-success/40 bg-success/5"
-                    : wasAnswered
-                    ? "border-destructive/40 bg-destructive/5"
-                    : "border-border/50"
-                }`}
-              >
-                <CardContent className="p-4 sm:p-6">
-                  {/* Question Header */}
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <Badge variant="outline" className="bg-background">Q{currentQuestionIndex + 1}</Badge>
-                    <Badge variant="secondary" className="bg-background">{currentQuestion.marks} marks</Badge>
-                    {currentQuestion.topic && (
-                      <Badge variant="outline" className="text-xs bg-background">
-                        {currentQuestion.topic}
-                      </Badge>
-                    )}
-                    {isCorrect ? (
-                      <Badge className="bg-success text-white border-success ml-auto shadow-sm">
-                        <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
-                        Correct
-                      </Badge>
-                    ) : wasAnswered ? (
-                      <Badge className="bg-destructive text-white border-destructive ml-auto shadow-sm">
-                        <XCircle className="h-3.5 w-3.5 mr-1" />
-                        Incorrect
-                      </Badge>
-                    ) : (
-                      <Badge variant="secondary" className="ml-auto bg-muted">
-                        <Minus className="h-3.5 w-3.5 mr-1" />
-                        Skipped
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Question Text */}
-                  <p className="text-base sm:text-lg font-medium text-foreground mb-6">
-                    {currentQuestion.questionText}
-                  </p>
-
-                  {/* Options */}
-                  <div className="space-y-3">
-                    {currentQuestion.options.map((option) => {
-                      const isSelected = currentAnswer?.selectedOptionId === option.id
-                      const isCorrectOption =
-                        option.id === currentQuestion.correctOptionId
-
-                      return (
-                        <div
-                          key={option.id}
-                          className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
-                            isCorrectOption
-                              ? "border-success bg-success/10 shadow-sm"
-                              : isSelected
-                              ? "border-destructive bg-destructive/10 shadow-sm"
-                              : "border-border/50 bg-background/50"
-                          }`}
-                        >
-                          <span
-                            className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold uppercase shrink-0 ${
-                              isCorrectOption
-                                ? "bg-success text-white shadow-md shadow-success/20"
-                                : isSelected
-                                ? "bg-destructive text-white shadow-md shadow-destructive/20"
-                                : "bg-muted text-muted-foreground"
-                            }`}
-                          >
-                            {option.id}
-                          </span>
-                          <span className={`flex-1 text-sm sm:text-base leading-snug ${isCorrectOption ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
-                            {option.text}
-                          </span>
-                          {isCorrectOption && (
-                            <CheckCircle2 className="h-5 w-5 text-success shrink-0" />
-                          )}
-                          {isSelected && !isCorrectOption && (
-                            <XCircle className="h-5 w-5 text-destructive shrink-0" />
-                          )}
-                        </div>
-                      )
-                    }
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Explanation */}
-              {mistakeAnalysis && (
-                <Card className="border-accent/20 bg-accent/5 shadow-sm">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2 text-accent">
-                      <Sparkles className="h-4 w-4" />
-                      AI Analysis
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-                      {mistakeAnalysis.explanation}
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Navigation */}
-              <div className="flex items-center justify-between gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
-                  disabled={currentQuestionIndex === 0}
-                  className="px-3 sm:px-4"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
-                </Button>
-                <span className="text-xs sm:text-sm font-medium text-muted-foreground">
-                  {currentQuestionIndex + 1} / {questions.length}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-                  disabled={currentQuestionIndex === questions.length - 1}
-                  className="px-3 sm:px-4"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Question Navigator */}
-            <div className="lg:sticky lg:top-24 h-fit w-full">
-              <Card className="border-border/50 shadow-sm">
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-sm text-foreground mb-4">Questions</h3>
-                  <div className="grid grid-cols-5 gap-2 max-h-[220px] overflow-y-auto pr-1">
-                    {questions.map((question, index) => {
-                      const answer = answers.find(
-                        (a) => a.questionId === question.id
-                      )
-                      const correct = answer?.isCorrect
-                      const answered = !!answer?.selectedOptionId
-                      const isCurrent = index === currentQuestionIndex
-
-                      return (
-                        <button
-                          key={question.id}
-                          onClick={() => setCurrentQuestionIndex(index)}
-                          className={`h-9 w-9 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center ${
-                            isCurrent
-                              ? "ring-2 ring-primary ring-offset-1 ring-offset-background"
-                              : ""
-                          } ${
-                            correct
-                              ? "bg-success/15 text-success border border-success/30 hover:bg-success/25"
-                              : answered
-                              ? "bg-destructive/15 text-destructive border border-destructive/30 hover:bg-destructive/25"
-                              : "bg-muted text-muted-foreground hover:bg-muted/80"
-                          }`}
-                        >
-                          {index + 1}
-                        </button>
-                      )
-                    
-                    })}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2.5 mt-4 pt-4 border-t border-border/50 text-[11px] font-medium">
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-2.5 w-2.5 rounded bg-success/20 border border-success/30" />
-                      <span className="text-muted-foreground">Correct</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-2.5 w-2.5 rounded bg-destructive/20 border border-destructive/30" />
-                      <span className="text-muted-foreground">Incorrect</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-2.5 w-2.5 rounded bg-muted border border-border" />
-                      <span className="text-muted-foreground">Skipped</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="mt-4">
-                <Link href={`/exam/${id}/result?attempt=${attemptId}`}>
-                  <Button variant="outline" className="w-full border-dashed hover:border-primary/50 text-xs h-9">
-                    <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
-                    Back to Results Summary
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
+              </CardContent>
+            </Card>
+          </aside>
         </div>
       </main>
     </div>
   )
 }
+ 

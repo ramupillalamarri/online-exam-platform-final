@@ -49,11 +49,13 @@ import { toast } from "sonner"
 
 export default function ExamsPage() {
   const router = useRouter()
-  const { exams, folders, publishExam, deleteExam } = useExamStore()
+  const { exams, folders, publishExam, deleteExam, setExams, setQuestions } = useExamStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [folderFilter, setFolderFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [deleteTarget, setDeleteTarget] = useState(null)
+  const [isClearing, setIsClearing] = useState(false)
+  const [showClearAllDialog, setShowClearAllDialog] = useState(false)
 
   const filteredExams = exams.filter((exam) => {
     const matchesSearch = exam.title
@@ -84,6 +86,31 @@ export default function ExamsPage() {
     toast.success("Exam deleted successfully")
   }
 
+  const handleClearAllExams = async () => {
+    setIsClearing(true)
+    try {
+      const res = await fetch('/api/exams/clear', { method: 'DELETE' })
+      if (res.ok) {
+        const data = await res.json()
+        
+        // Reset local UI state
+        setExams([])
+        setQuestions([])
+        setShowClearAllDialog(false)
+        
+        alert('✓ All exams cleared successfully!\n\n' + data.message)
+      } else {
+        const data = await res.json()
+        alert('❌ Error: ' + (data.error || 'Failed to clear exams.'))
+      }
+    } catch (error) {
+      console.error('Clear Error:', error)
+      alert('❌ Error: ' + error.message)
+    } finally {
+      setIsClearing(false)
+    }
+  }
+
   return (
     <div className="p-6 lg:p-8 space-y-6">
       {/* Header */}
@@ -94,10 +121,23 @@ export default function ExamsPage() {
             Create and manage your examinations
           </p>
         </div>
-        <Button onClick={() => router.push("/admin/exams/new")}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Exam
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => router.push("/admin/exams/new")}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Exam
+          </Button>
+          {exams.length > 0 && (
+            <Button
+              onClick={() => setShowClearAllDialog(true)}
+              variant="destructive"
+              size="sm"
+              disabled={isClearing}
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              {isClearing ? "Clearing..." : "Delete All"}
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -279,6 +319,32 @@ export default function ExamsPage() {
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete All Confirmation */}
+      <AlertDialog
+        open={showClearAllDialog}
+        onOpenChange={setShowClearAllDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete All Exams</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete ALL exams? This action cannot be undone.
+              All exams and their associated questions will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClearAllExams}
+              disabled={isClearing}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isClearing ? "Deleting..." : "Delete All Exams"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

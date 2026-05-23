@@ -12,15 +12,16 @@ export async function GET() {
         u.avatar_url as "avatarUrl", 
         u.created_at as "createdAt",
         COALESCE(att.attempt_count, 0)::integer as "attemptCount",
-        COALESCE(att.avg_score, 0)::numeric::double precision as "avgScore"
+        COALESCE(att.avg_score, 0)::numeric::double precision as "avgScore",
+        att.last_active as "lastActive"
       FROM users u
       LEFT JOIN (
         SELECT 
           user_id, 
-          COUNT(*),
-          AVG(COALESCE(score, 0) * 100 / CASE WHEN total_marks = 0 THEN 1 ELSE total_marks END)
+          COUNT(*) as attempt_count,
+          AVG(COALESCE(score, 0) * 100.0 / NULLIF(total_marks, 0)) FILTER (WHERE status = 'graded') as avg_score,
+          MAX(COALESCE(submitted_at, started_at)) as last_active
         FROM attempts 
-        WHERE status = 'graded'
         GROUP BY user_id
       ) att ON u.id = att.user_id
       WHERE u.role = 'student'

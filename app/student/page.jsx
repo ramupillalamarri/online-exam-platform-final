@@ -168,7 +168,7 @@ export default function StudentDashboard() {
             <motion.span
               className="text-2xl"
               animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
-              transition={{ duration: 2.5, repeat, repeatDelay: 3 }}
+              transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3 }}
             >
               &#128075;
             </motion.span>
@@ -580,7 +580,7 @@ export default function StudentDashboard() {
                     animate={{ rotate: [0, 10, 0, -10, 0] }}
                     transition={{ duration: 4, repeat: Infinity }}
                   >
-                    <SparklesIcon className="h-4 w-4 text-accent" />
+                    <Zap className="h-4 w-4 text-accent" />
                   </motion.div>
                   <div>
                     <CardTitle className="text-lg flex items-center gap-2">

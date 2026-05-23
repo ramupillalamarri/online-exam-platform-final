@@ -54,20 +54,16 @@ export async function POST( req) {
     }
 
     score = Math.max(0, score);
-    
-    // Calculate rank (mock rank formula, but persistent)
-    const rank = Math.min(20, Math.ceil((1 - (score / (totalMarks || 1))) * 20) + 1);
 
-    // 6. Update attempt in DB
+    // 6. Update attempt in DB first
     const updatedAttemptRes = await query(`
       UPDATE attempts 
       SET 
         status = 'graded', 
         submitted_at = NOW(), 
         score = $1, 
-        total_marks = $2, 
-        rank = $3
-      WHERE id = $4
+        total_marks = $2
+      WHERE id = $3
       RETURNING 
         id, 
         exam_id as "examId", 
@@ -79,9 +75,44 @@ export async function POST( req) {
         total_marks as "totalMarks", 
         rank, 
         warnings
-    `, [score, totalMarks, rank, attemptId]);
+    `, [score, totalMarks, attemptId]);
 
     const updatedAttempt = updatedAttemptRes.rows[0];
+
+    // 7. Recompute ranking for all graded attempts in this exam based on score desc, time asc
+    await query(`
+      WITH ranked AS (
+        SELECT
+          id,
+          ROW_NUMBER() OVER (
+            ORDER BY score DESC, submitted_at ASC, started_at ASC, id ASC
+          ) AS computed_rank
+        FROM attempts
+        WHERE exam_id = $1 AND status = 'graded'
+      )
+      UPDATE attempts
+      SET rank = ranked.computed_rank
+      FROM ranked
+      WHERE attempts.id = ranked.id
+    `, [attempt.exam_id]);
+
+    const finalAttemptRes = await query(`
+      SELECT 
+        id, 
+        exam_id as "examId", 
+        user_id as "userId", 
+        status, 
+        started_at as "startedAt", 
+        submitted_at as "submittedAt", 
+        score::numeric::double precision as "score", 
+        total_marks as "totalMarks", 
+        rank, 
+        warnings
+      FROM attempts
+      WHERE id = $1
+    `, [attemptId]);
+
+    const finalAttempt = finalAttemptRes.rows[0];
 
     // 7. Generate AI Feedback
     const wrongAnswers = answers.filter((ans) => {
@@ -90,24 +121,29 @@ export async function POST( req) {
     });
 
     const mistakeAnalysis = wrongAnswers.map((ans) => {
-      const q = questions.find((qi) => qi.id === ans.question_id)!;
-      const selected = q.options.find((o) => o.id === ans.selected_option_id);
-      const correct = q.options.find((o) => o.id === q.correct_option_id);
+      const q = questions.find((qi) => qi.id === ans.question_id);
+      if (!q) return null;
+      
+      // Parse options if they're stored as JSON string
+      const options = typeof q.options === 'string' ? JSON.parse(q.options) : q.options || [];
+      const selected = options.find((o) => o.id === ans.selected_option_id);
+      const correct = options.find((o) => o.id === q.correct_option_id);
+      
       return {
         questionId: ans.question_id,
         explanation: `You selected "${selected?.text || ans.selected_option_id}" but the correct answer is "${correct?.text || q.correct_option_id}". ${
           q.topic ? `This question tests your understanding of ${q.topic}.` : ''
         } Review the concept and practice similar problems.`
       };
-    });
+    }).filter(Boolean);
 
     // Group wrong answers by topic to find weak areas
     const topicCounts = {};
     wrongAnswers.forEach((ans) => {
       const q = questions.find((qi) => qi.id === ans.question_id);
       if (!q) return;
-      const topic = q.topic || 'General';
-      const subject = q.subject || 'General';
+      const topic = (typeof q.topic === 'string' ? q.topic : q.topic) || 'General';
+      const subject = (typeof q.subject === 'string' ? q.subject : q.subject) || 'General';
       if (!topicCounts[topic]) {
         topicCounts[topic] = { subject, count: 0 };
       }
@@ -132,7 +168,7 @@ export async function POST( req) {
     return NextResponse.json({
       success: true,
       attempt: {
-        ...updatedAttempt,
+        ...finalAttempt,
         examTitle: exam.title
       },
       feedback: {

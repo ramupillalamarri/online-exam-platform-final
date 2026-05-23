@@ -45,7 +45,8 @@ export default function LoginPage() {
   const [isGoogleEnabled, setIsGoogleEnabled] = useState(false)
   const { login } = useExamStore()
   const router = useRouter()
-  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+  const GOOGLE_CLIENT_ID =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID
   const isDevelopment = process.env.NODE_ENV === "development"
 
   useEffect(() => {

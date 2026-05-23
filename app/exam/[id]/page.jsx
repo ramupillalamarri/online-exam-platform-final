@@ -160,15 +160,20 @@ export default function ExamPage({
   }
 
   const handleStartExam = async () => {
-    await enterFullscreen()
-    const currentAttempt = startAttempt(id)
-    if (currentAttempt.timeRemainingSeconds) {
-      setTimeRemaining(currentAttempt.timeRemainingSeconds)
-    } else {
-      setTimeRemaining(exam ? exam.durationMinutes * 60 : 3600)
+    try {
+      const currentAttempt = startAttempt(id)
+      if (currentAttempt.timeRemainingSeconds) {
+        setTimeRemaining(currentAttempt.timeRemainingSeconds)
+      } else {
+        setTimeRemaining(exam ? exam.durationMinutes * 60 : 3600)
+      }
+      await enterFullscreen()
+      setIsStarted(true)
+      toast.success("Exam started! Fullscreen mode enabled.")
+    } catch (err) {
+      console.error('Start attempt failed:', err)
+      toast.error(err?.message || 'Cannot start exam: attempt limit reached.')
     }
-    setIsStarted(true)
-    toast.success("Exam started! Fullscreen mode enabled.")
   }
 
   const formatTime = (seconds) => {
@@ -339,99 +344,48 @@ export default function ExamPage({
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 container mx-auto px-4 py-4 sm:py-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid lg:grid-cols-[1fr_260px] gap-6 items-start">
-            {/* Question Area */}
-            <div className="space-y-6">
-              <Card className="border-border/50 shadow-md">
-                <CardContent className="p-4 sm:p-6">
-                  {/* Question Header */}
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary">Q{currentQuestionIndex + 1}</Badge>
-                    <Badge variant="secondary">{currentQuestion.marks} marks</Badge>
-                    {currentQuestion.topic && (
-                      <Badge variant="outline" className="text-xs">
-                        {currentQuestion.topic}
-                      </Badge>
-                    )}
-                  </div>
+      <main className="flex-1 container mx-auto px-4 py-2 sm:py-3 overflow-hidden">
+        <div className="max-w-4xl mx-auto h-full flex flex-col space-y-3">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+                disabled={currentQuestionIndex === 0}
+                className="px-2 sm:px-3 h-8 text-sm"
+              >
+                <ChevronLeft className="h-3.5 w-3.5 mr-0.5" />
+                Previous
+              </Button>
 
-                  {/* Question Text */}
-                  <p className="text-base sm:text-lg font-medium text-foreground mb-6">
-                    {currentQuestion.questionText}
-                  </p>
-
-                  {/* Options */}
-                  <RadioGroup
-                    value={currentAnswer?.selectedOptionId || ""}
-                    onValueChange={handleSelectOption}
-                    className="space-y-3"
-                  >
-                    {currentQuestion.options.map((option) => (
-                      <label
-                        key={option.id}
-                        htmlFor={option.id}
-                        className={`flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${
-                          currentAnswer?.selectedOptionId === option.id
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border hover:border-primary/40 hover:bg-muted/50"
-                        }`}
-                      >
-                        <RadioGroupItem value={option.id} id={option.id} className="shrink-0" />
-                        <span className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-semibold uppercase shrink-0">
-                          {option.id}
-                        </span>
-                        <span className="flex-1 text-sm sm:text-base text-foreground leading-snug">
-                          {option.text}
-                        </span>
-                      </label>
-                    ))}
-                  </RadioGroup>
-                </CardContent>
-              </Card>
-
-              {/* Navigation Buttons */}
-              <div className="flex items-center justify-between gap-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
-                  disabled={currentQuestionIndex === 0}
-                  className="px-3 sm:px-4"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Previous
+              {currentQuestionIndex === questions.length - 1 ? (
+                <Button onClick={() => setShowSubmitDialog(true)} className="bg-gradient-to-r from-success to-emerald-600 text-white h-8 text-sm">
+                  <Flag className="h-3 w-3 mr-1" />
+                  Submit Exam
                 </Button>
-
-                {currentQuestionIndex === questions.length - 1 ? (
-                  <Button onClick={() => setShowSubmitDialog(true)} className="bg-gradient-to-r from-success to-emerald-600 text-white">
-                    <Flag className="h-4 w-4 mr-2" />
-                    Submit Exam
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-                    className="px-3 sm:px-4"
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </Button>
-                )}
-              </div>
+              ) : (
+                <Button
+                  onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+                  className="px-2 sm:px-3 h-8 text-sm"
+                >
+                  Next
+                  <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+                </Button>
+              )}
             </div>
 
             {/* Question Navigator */}
-            <div className="lg:sticky lg:top-24 h-fit w-full">
+            <div className="w-full">
               <Card className="border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-sm text-foreground">Questions</h3>
-                    <span className="text-xs text-muted-foreground font-medium">
+                <CardContent className="p-2">
+                  <div className="flex items-center justify-between mb-2 text-xs">
+                    <h3 className="font-semibold text-foreground">Questions</h3>
+                    <span className="text-muted-foreground font-medium">
                       {answeredCount}/{questions.length} answered
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-5 gap-2 max-h-[220px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-5 gap-1 max-h-[140px] overflow-y-auto pr-1">
                     {questions.map((question, index) => {
                       const status = getQuestionStatus(question.id)
                       const isCurrent = index === currentQuestionIndex
@@ -440,7 +394,7 @@ export default function ExamPage({
                         <button
                           key={question.id}
                           onClick={() => setCurrentQuestionIndex(index)}
-                          className={`h-9 w-9 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center ${
+                          className={`h-7 w-7 rounded-lg text-[10px] font-semibold transition-colors flex items-center justify-center ${
                             isCurrent
                               ? "bg-primary text-primary-foreground shadow"
                               : status === "answered"
@@ -451,32 +405,79 @@ export default function ExamPage({
                           {index + 1}
                         </button>
                       )
-                    
                     })}
                   </div>
 
-                  <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border text-[11px]">
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-3 w-3 rounded bg-success/10 border border-success/20" />
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border text-[10px]">
+                    <div className="flex items-center gap-1">
+                      <div className="h-2 w-2 rounded bg-success/10 border border-success/20" />
                       <span className="text-muted-foreground">Answered</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="h-3 w-3 rounded bg-muted" />
+                    <div className="flex items-center gap-1">
+                      <div className="h-2 w-2 rounded bg-muted" />
                       <span className="text-muted-foreground">Unanswered</span>
                     </div>
                   </div>
 
                   <Button
                     variant="outline"
-                    className="w-full mt-4 border-dashed hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30 text-xs h-9"
+                    className="w-full mt-2 border-dashed hover:bg-destructive/5 hover:text-destructive hover:border-destructive/30 text-[10px] h-7"
                     onClick={() => setShowSubmitDialog(true)}
                   >
-                    <Flag className="h-3.5 w-3.5 mr-1.5" />
+                    <Flag className="h-3 w-3 mr-1" />
                     Submit Exam
                   </Button>
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          <div className="flex-1 overflow-hidden">
+            <Card className="border-border/50 shadow-md h-full overflow-hidden">
+              <CardContent className="p-3 sm:p-4 h-full flex flex-col">
+                <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                  <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary text-xs">Q{currentQuestionIndex + 1}</Badge>
+                  <Badge variant="secondary" className="text-xs">{currentQuestion.marks} marks</Badge>
+                  {currentQuestion.topic && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {currentQuestion.topic}
+                    </Badge>
+                  )}
+                </div>
+
+                <div className="flex-1 overflow-y-auto space-y-2">
+                  <p className="text-sm sm:text-base font-medium text-foreground">
+                    {currentQuestion.questionText}
+                  </p>
+
+                  <RadioGroup
+                    value={currentAnswer?.selectedOptionId || ""}
+                    onValueChange={handleSelectOption}
+                    className="space-y-2"
+                  >
+                    {currentQuestion.options.map((option) => (
+                      <label
+                        key={option.id}
+                        htmlFor={option.id}
+                        className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${
+                          currentAnswer?.selectedOptionId === option.id
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border hover:border-primary/40 hover:bg-muted/50"
+                        }`}
+                      >
+                        <RadioGroupItem value={option.id} id={option.id} className="shrink-0" />
+                        <span className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-semibold uppercase shrink-0">
+                          {option.id}
+                        </span>
+                        <span className="flex-1 text-xs sm:text-sm text-foreground leading-snug">
+                          {option.text}
+                        </span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </main>
@@ -536,10 +537,14 @@ export default function ExamPage({
               Warning: Tab Switch Detected
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You switched away from the exam tab. This has been recorded
-              warning. If you switch tabs more than 3 times, your exam will be terminated immediately.
-              <div className="mt-4 p-3.5 rounded-lg bg-warning/10 text-warning font-semibold text-sm">
-                Warnings given: {attempt?.warnings || 0} / 3
+              <div className="space-y-4">
+                <p>
+                  You switched away from the exam tab. This has been recorded
+                  warning. If you switch tabs more than 3 times, your exam will be terminated immediately.
+                </p>
+                <div className="p-3.5 rounded-lg bg-warning/10 text-warning font-semibold text-sm">
+                  Warnings given: {attempt?.warnings || 0} / 3
+                </div>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>

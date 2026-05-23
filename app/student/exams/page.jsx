@@ -53,7 +53,7 @@ const staggerContainer = {
 
 export default function StudentExamsPage() {
   const router = useRouter()
-  const { user, exams, folders, attempts } = useExamStore()
+  const { user, exams, folders, attempts, getAttemptStats } = useExamStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [folderFilter, setFolderFilter] = useState("all")
   const [selectedExam, setSelectedExam] = useState(null)
@@ -69,14 +69,18 @@ export default function StudentExamsPage() {
     return matchesSearch && matchesFolder
   })
 
+  // Use centralized attempt stats from store
   const getAttemptStatus = (examId) => {
-    const userAttempts = attempts.filter(
-      (a) => a.examId === examId && a.userId === user?.id
-    )
-    const inProgress = userAttempts.find((a) => a.status === "in_progress")
-    const completed = userAttempts.filter((a) => a.status === "graded")
-
-    return { inProgress, completed, attemptCount: completed.length }
+    const stats = getAttemptStats(examId, user?.id || 'student-1')
+    return {
+      inProgress: stats.inProgress > 0,
+      completed: Array.from({ length: stats.completed }),
+      attemptCount: stats.completed,
+      remaining: stats.remaining,
+      canAttempt: stats.canAttempt,
+      maxAllowed: stats.maxAllowed,
+      bestScore: stats.bestScore,
+    }
   }
 
   const handleStartExam = ( exam) => {
@@ -181,11 +185,11 @@ export default function StudentExamsPage() {
             className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
           >
             {filteredExams.map((exam) => {
-              const { inProgress, completed, attemptCount } = getAttemptStatus(exam.id)
-              const bestScore =
-                completed.length > 0
-                  ? Math.max(...completed.map((a) => a.score || 0))
-                  : null
+              const stats = getAttemptStats(exam.id, user?.id || 'student-1')
+              const inProgress = stats.inProgress > 0
+              const attemptCount = stats.completed
+              const bestScore = stats.bestScore
+              const canAttempt = stats.canAttempt
 
               return (
                 <motion.div
@@ -269,22 +273,24 @@ export default function StudentExamsPage() {
                             className="w-full shadow-md shadow-primary/20"
                             onClick={() => handleStartExam(exam)}
                           >
-                            {inProgress ? (
-                              <>
-                                <Play className="mr-2 h-4 w-4" />
-                                Resume Exam
-                              </>
-                            ) : attemptCount > 0 ? (
-                              <>
-                                <Play className="mr-2 h-4 w-4" />
-                                Retake Exam
-                              </>
-                            ) : (
-                              <>
-                                <Play className="mr-2 h-4 w-4" />
-                                Start Exam
-                              </>
-                            )}
+                                          {inProgress ? (
+                                            <>
+                                              <Play className="mr-2 h-4 w-4" />
+                                              Resume Exam
+                                            </>
+                                          ) : !canAttempt ? (
+                                            <>No attempts left</>
+                                          ) : attemptCount > 0 ? (
+                                            <>
+                                              <Play className="mr-2 h-4 w-4" />
+                                              Retake Exam
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Play className="mr-2 h-4 w-4" />
+                                              Start Exam
+                                            </>
+                                          )}
                           </Button>
                         </motion.div>
                       </div>
