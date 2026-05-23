@@ -5,6 +5,8 @@ import * as RadixArea from '@radix-ui/react-scroll-area'
 
 import { cn } from '@/lib/utils'
 
+const ScrollAreaPrimitive = RadixArea
+
 function ScrollArea({
   className,
   children,
@@ -56,3 +58,5 @@ function ScrollBar({
 }
 
 export { ScrollArea, ScrollBar }
+
+

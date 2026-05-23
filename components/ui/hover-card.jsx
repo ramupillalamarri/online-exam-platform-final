@@ -8,14 +8,14 @@ import { cn } from '@/lib/utils'
 function HoverCard({
   ...props
 }) {
-  return <HoverCardPrimitive.Root data-slot="hover-card" {...props} />
+  return <RadixCard.Root data-slot="hover-card" {...props} />
 }
 
 function HoverCardTrigger({
   ...props
 }) {
   return (
-    <HoverCardPrimitive.Trigger data-slot="hover-card-trigger" {...props} />
+    <RadixCard.Trigger data-slot="hover-card-trigger" {...props} />
   )
 }
 
@@ -26,8 +26,8 @@ function HoverCardContent({
   ...props
 }) {
   return (
-    <HoverCardPrimitive.Portal data-slot="hover-card-portal">
-      <HoverCardPrimitive.Content
+    <RadixCard.Portal data-slot="hover-card-portal">
+      <RadixCard.Content
         data-slot="hover-card-content"
         align={align}
         sideOffset={sideOffset}
@@ -37,8 +37,10 @@ function HoverCardContent({
         )}
         {...props}
       />
-    </HoverCardPrimitive.Portal>
+    </RadixCard.Portal>
   )
 }
 
 export { HoverCard, HoverCardTrigger, HoverCardContent }
+
+

@@ -35,8 +35,7 @@ import { toast } from "sonner"
 
 export default function ExamPage({
   params,
-})
-})
+}) {
   const { id } = use(params)
   const router = useRouter()
   const {
@@ -172,7 +171,7 @@ export default function ExamPage({
     toast.success("Exam started! Fullscreen mode enabled.")
   }
 
-  const formatTime = (seconds: number) => {
+  const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`
@@ -182,7 +181,7 @@ export default function ExamPage({
   const currentAnswer = answers.find((a) => a.questionId === currentQuestion?.id)
 
   const handleSelectOption = useCallback(
-    async (optionId: string) => {
+    async (optionId) => {
       if (!attempt || !currentQuestion) return
 
       setIsSaving(true)
@@ -203,7 +202,7 @@ export default function ExamPage({
     router.push(`/exam/${id}/result?attempt=${attempt.id}`)
   }
 
-  const getQuestionStatus = (questionId: string) => {
+  const getQuestionStatus = (questionId) => {
     const answer = answers.find((a) => a.questionId === questionId)
     return answer?.selectedOptionId ? "answered" : "unanswered"
   }
@@ -452,6 +451,7 @@ export default function ExamPage({
                           {index + 1}
                         </button>
                       )
+                    
                     })}
                   </div>
 

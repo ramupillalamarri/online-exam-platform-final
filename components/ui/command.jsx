@@ -18,7 +18,7 @@ function Command({
   ...props
 }) {
   return (
-    <CommandPrimitive
+    <Command
       data-slot="command"
       className={cn(
         'bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md',
@@ -36,8 +36,7 @@ function CommandDialog({
   className,
   showCloseButton = true,
   ...props
-})
-})
+}) {
   return (
     <Dialog {...props}>
       <DialogHeader className="sr-only">
@@ -66,7 +65,7 @@ function CommandInput({
       className="flex h-9 items-center gap-2 border-b px-3"
     >
       <SearchIcon className="size-4 shrink-0 opacity-50" />
-      <CommandPrimitive.Input
+      <Command.Input
         data-slot="command-input"
         className={cn(
           'placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50',
@@ -83,7 +82,7 @@ function CommandList({
   ...props
 }) {
   return (
-    <CommandPrimitive.List
+    <Command.List
       data-slot="command-list"
       className={cn(
         'max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto',
@@ -98,7 +97,7 @@ function CommandEmpty({
   ...props
 }) {
   return (
-    <CommandPrimitive.Empty
+    <Command.Empty
       data-slot="command-empty"
       className="py-6 text-center text-sm"
       {...props}
@@ -111,7 +110,7 @@ function CommandGroup({
   ...props
 }) {
   return (
-    <CommandPrimitive.Group
+    <Command.Group
       data-slot="command-group"
       className={cn(
         'text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium',
@@ -127,7 +126,7 @@ function CommandSeparator({
   ...props
 }) {
   return (
-    <CommandPrimitive.Separator
+    <Command.Separator
       data-slot="command-separator"
       className={cn('bg-border -mx-1 h-px', className)}
       {...props}
@@ -140,7 +139,7 @@ function CommandItem({
   ...props
 }) {
   return (
-    <CommandPrimitive.Item
+    <Command.Item
       data-slot="command-item"
       className={cn(
         "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -178,3 +177,6 @@ export {
   CommandShortcut,
   CommandSeparator,
 }
+
+
+

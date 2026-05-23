@@ -35,7 +35,7 @@ function Toggle({
   ...props
 }) {
   return (
-    <TogglePrimitive.Root
+    <RadixToggle.Root
       data-slot="toggle"
       className={cn(toggleVariants({ variant, size, className }))}
       {...props}
@@ -44,3 +44,5 @@ function Toggle({
 }
 
 export { Toggle, toggleVariants }
+
+

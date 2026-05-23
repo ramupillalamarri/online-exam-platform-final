@@ -153,7 +153,7 @@ export default function AdminDashboard() {
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">Admin Dashboard</h1>
             <motion.div
               animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat, repeatDelay: 3 }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
             >
               <BarChart3 className="h-6 w-6 text-primary" />
             </motion.div>
@@ -537,3 +537,5 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
+

@@ -69,7 +69,7 @@ export default function StudentExamsPage() {
     return matchesSearch && matchesFolder
   })
 
-  const getAttemptStatus = (examId: string) => {
+  const getAttemptStatus = (examId) => {
     const userAttempts = attempts.filter(
       (a) => a.examId === examId && a.userId === user?.id
     )
@@ -292,7 +292,7 @@ export default function StudentExamsPage() {
                   </Card>
                 </motion.div>
               )
-            })}
+              })}
           </motion.div>
         )}
       </AnimatePresence>
@@ -356,3 +356,6 @@ export default function StudentExamsPage() {
     </div>
   )
 }
+
+
+

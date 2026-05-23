@@ -25,8 +25,7 @@ import {
 
 export default function ResultPage({
   params,
-})
-})
+}) {
   const { id } = use(params)
   const searchParams = useSearchParams()
   const router = useRouter()

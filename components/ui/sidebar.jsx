@@ -145,8 +145,7 @@ function Sidebar({
   className,
   children,
   ...props
-})
-})
+}) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 
   if (collapsible === 'none') {
@@ -530,8 +529,7 @@ function SidebarMenuAction({
   asChild = false,
   showOnHover = false,
   ...props
-})
-})
+}) {
   const Comp = asChild ? Slot : 'button'
 
   return (
@@ -581,8 +579,7 @@ function SidebarMenuSkeleton({
   className,
   showIcon = false,
   ...props
-})
-})
+}) {
   // Random width between 50 to 90%.
   const width = React.useMemo(() => {
     return `${Math.floor(Math.random() * 40) + 50}%`
@@ -649,8 +646,7 @@ function SidebarMenuSubButton({
   isActive = false,
   className,
   ...props
-})
-})
+}) {
   const Comp = asChild ? Slot : 'a'
 
   return (
@@ -698,3 +694,6 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+
+

@@ -41,8 +41,7 @@ function ButtonGroupText({
   className,
   asChild = false,
   ...props
-})
-})
+}) {
   const Comp = asChild ? Slot : 'div'
 
   return (
@@ -80,3 +79,6 @@ export {
   ButtonGroupText,
   buttonGroupVariants,
 }
+
+
+

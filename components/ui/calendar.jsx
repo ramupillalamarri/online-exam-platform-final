@@ -20,8 +20,7 @@ function Calendar({
   formatters,
   components,
   ...props
-})
-})
+}) {
   const defaultClassNames = getDefaultClassNames()
 
   return (
@@ -210,3 +209,6 @@ function CalendarDayButton({
 }
 
 export { Calendar, CalendarDayButton }
+
+
+

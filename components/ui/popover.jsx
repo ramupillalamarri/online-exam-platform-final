@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils'
 function Popover({
   ...props
 }) {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />
+  return <RadixPopover.Root data-slot="popover" {...props} />
 }
 
 function PopoverTrigger({
   ...props
 }) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
+  return <RadixPopover.Trigger data-slot="popover-trigger" {...props} />
 }
 
 function PopoverContent({
@@ -24,8 +24,8 @@ function PopoverContent({
   ...props
 }) {
   return (
-    <PopoverPrimitive.Portal>
-      <PopoverPrimitive.Content
+    <RadixPopover.Portal>
+      <RadixPopover.Content
         data-slot="popover-content"
         align={align}
         sideOffset={sideOffset}
@@ -35,14 +35,16 @@ function PopoverContent({
         )}
         {...props}
       />
-    </PopoverPrimitive.Portal>
+    </RadixPopover.Portal>
   )
 }
 
 function PopoverAnchor({
   ...props
 }) {
-  return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />
+  return <RadixPopover.Anchor data-slot="popover-anchor" {...props} />
 }
 
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor }
+
+

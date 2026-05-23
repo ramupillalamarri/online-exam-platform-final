@@ -11,7 +11,7 @@ function Menubar({
   ...props
 }) {
   return (
-    <MenubarPrimitive.Root
+    <RadixMenubar.Root
       data-slot="menubar"
       className={cn(
         'bg-background flex h-9 items-center gap-1 rounded-md border p-1 shadow-xs',
@@ -25,26 +25,26 @@ function Menubar({
 function MenubarMenu({
   ...props
 }) {
-  return <MenubarPrimitive.Menu data-slot="menubar-menu" {...props} />
+  return <RadixMenubar.Menu data-slot="menubar-menu" {...props} />
 }
 
 function MenubarGroup({
   ...props
 }) {
-  return <MenubarPrimitive.Group data-slot="menubar-group" {...props} />
+  return <RadixMenubar.Group data-slot="menubar-group" {...props} />
 }
 
 function MenubarPortal({
   ...props
 }) {
-  return <MenubarPrimitive.Portal data-slot="menubar-portal" {...props} />
+  return <RadixMenubar.Portal data-slot="menubar-portal" {...props} />
 }
 
 function MenubarRadioGroup({
   ...props
 }) {
   return (
-    <MenubarPrimitive.RadioGroup data-slot="menubar-radio-group" {...props} />
+    <RadixMenubar.RadioGroup data-slot="menubar-radio-group" {...props} />
   )
 }
 
@@ -53,7 +53,7 @@ function MenubarTrigger({
   ...props
 }) {
   return (
-    <MenubarPrimitive.Trigger
+    <RadixMenubar.Trigger
       data-slot="menubar-trigger"
       className={cn(
         'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex items-center rounded-sm px-2 py-1 text-sm font-medium outline-hidden select-none',
@@ -73,7 +73,7 @@ function MenubarContent({
 }) {
   return (
     <MenubarPortal>
-      <MenubarPrimitive.Content
+      <RadixMenubar.Content
         data-slot="menubar-content"
         align={align}
         alignOffset={alignOffset}
@@ -93,10 +93,9 @@ function MenubarItem({
   inset,
   variant = 'default',
   ...props
-})
-})
+}) {
   return (
-    <MenubarPrimitive.Item
+    <RadixMenubar.Item
       data-slot="menubar-item"
       data-inset={inset}
       data-variant={variant}
@@ -116,7 +115,7 @@ function MenubarCheckboxItem({
   ...props
 }) {
   return (
-    <MenubarPrimitive.CheckboxItem
+    <RadixMenubar.CheckboxItem
       data-slot="menubar-checkbox-item"
       className={cn(
         "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -126,12 +125,12 @@ function MenubarCheckboxItem({
       {...props}
     >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
-        <MenubarPrimitive.ItemIndicator>
+        <RadixMenubar.ItemIndicator>
           <CheckIcon className="size-4" />
-        </MenubarPrimitive.ItemIndicator>
+        </RadixMenubar.ItemIndicator>
       </span>
       {children}
-    </MenubarPrimitive.CheckboxItem>
+    </RadixMenubar.CheckboxItem>
   )
 }
 
@@ -141,7 +140,7 @@ function MenubarRadioItem({
   ...props
 }) {
   return (
-    <MenubarPrimitive.RadioItem
+    <RadixMenubar.RadioItem
       data-slot="menubar-radio-item"
       className={cn(
         "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -150,12 +149,12 @@ function MenubarRadioItem({
       {...props}
     >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
-        <MenubarPrimitive.ItemIndicator>
+        <RadixMenubar.ItemIndicator>
           <CircleIcon className="size-2 fill-current" />
-        </MenubarPrimitive.ItemIndicator>
+        </RadixMenubar.ItemIndicator>
       </span>
       {children}
-    </MenubarPrimitive.RadioItem>
+    </RadixMenubar.RadioItem>
   )
 }
 
@@ -163,10 +162,9 @@ function MenubarLabel({
   className,
   inset,
   ...props
-})
-})
+}) {
   return (
-    <MenubarPrimitive.Label
+    <RadixMenubar.Label
       data-slot="menubar-label"
       data-inset={inset}
       className={cn(
@@ -183,7 +181,7 @@ function MenubarSeparator({
   ...props
 }) {
   return (
-    <MenubarPrimitive.Separator
+    <RadixMenubar.Separator
       data-slot="menubar-separator"
       className={cn('bg-border -mx-1 my-1 h-px', className)}
       {...props}
@@ -210,7 +208,7 @@ function MenubarShortcut({
 function MenubarSub({
   ...props
 }) {
-  return <MenubarPrimitive.Sub data-slot="menubar-sub" {...props} />
+  return <RadixMenubar.Sub data-slot="menubar-sub" {...props} />
 }
 
 function MenubarSubTrigger({
@@ -218,10 +216,9 @@ function MenubarSubTrigger({
   inset,
   children,
   ...props
-})
-})
+}) {
   return (
-    <MenubarPrimitive.SubTrigger
+    <RadixMenubar.SubTrigger
       data-slot="menubar-sub-trigger"
       data-inset={inset}
       className={cn(
@@ -232,7 +229,7 @@ function MenubarSubTrigger({
     >
       {children}
       <ChevronRightIcon className="ml-auto h-4 w-4" />
-    </MenubarPrimitive.SubTrigger>
+    </RadixMenubar.SubTrigger>
   )
 }
 
@@ -241,7 +238,7 @@ function MenubarSubContent({
   ...props
 }) {
   return (
-    <MenubarPrimitive.SubContent
+    <RadixMenubar.SubContent
       data-slot="menubar-sub-content"
       className={cn(
         'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg',
@@ -270,3 +267,6 @@ export {
   MenubarSubTrigger,
   MenubarSubContent,
 }
+
+
+

@@ -12,7 +12,7 @@ function Separator({
   ...props
 }) {
   return (
-    <SeparatorPrimitive.Root
+    <RadixSeparator.Root
       data-slot="separator"
       decorative={decorative}
       orientation={orientation}
@@ -26,3 +26,5 @@ function Separator({
 }
 
 export { Separator }
+
+

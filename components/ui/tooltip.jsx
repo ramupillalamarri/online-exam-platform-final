@@ -10,7 +10,7 @@ function TooltipProvider({
   ...props
 }) {
   return (
-    <TooltipPrimitive.Provider
+    <RadixTooltip.Provider
       data-slot="tooltip-provider"
       delayDuration={delayDuration}
       {...props}
@@ -23,7 +23,7 @@ function Tooltip({
 }) {
   return (
     <TooltipProvider>
-      <TooltipPrimitive.Root data-slot="tooltip" {...props} />
+      <RadixTooltip.Root data-slot="tooltip" {...props} />
     </TooltipProvider>
   )
 }
@@ -31,7 +31,7 @@ function Tooltip({
 function TooltipTrigger({
   ...props
 }) {
-  return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
+  return <RadixTooltip.Trigger data-slot="tooltip-trigger" {...props} />
 }
 
 function TooltipContent({
@@ -41,8 +41,8 @@ function TooltipContent({
   ...props
 }) {
   return (
-    <TooltipPrimitive.Portal>
-      <TooltipPrimitive.Content
+    <RadixTooltip.Portal>
+      <RadixTooltip.Content
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
@@ -52,10 +52,12 @@ function TooltipContent({
         {...props}
       >
         {children}
-        <TooltipPrimitive.Arrow className="bg-foreground fill-foreground z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
-      </TooltipPrimitive.Content>
-    </TooltipPrimitive.Portal>
+        <RadixTooltip.Arrow className="bg-foreground fill-foreground z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]" />
+      </RadixTooltip.Content>
+    </RadixTooltip.Portal>
   )
 }
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }
+
+

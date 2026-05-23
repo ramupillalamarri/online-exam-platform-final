@@ -34,7 +34,7 @@ export default function NewExamPage() {
     isPublished: false,
   })
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!formData.title.trim()) {
@@ -223,3 +223,5 @@ export default function NewExamPage() {
     </div>
   )
 }
+
+

@@ -228,7 +228,8 @@ export function DashboardLayout({ children }) {
             {/* Navigation */}
             <ScrollArea className="flex-1 py-4 relative">
               <nav className="px-3 space-y-1">
-                {navItems.filter(item => item.label.toLowerCase().includes(sidebarSearch.toLowerCase())).map((item, index) => {
+                {
+                navItems.filter(item => item.label.toLowerCase().includes(sidebarSearch.toLowerCase())).map((item, index) => {
                   const isActive = pathname === item.href || (item.href !== "/admin" && item.href !== "/student" && pathname.startsWith(item.href))
                   return (
                     <motion.div
@@ -237,53 +238,56 @@ export function DashboardLayout({ children }) {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Link
-                        href={item.href}
-                        onClick={() => setSidebarOpen(false)}
-                      >
+                    <Link
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                    >
+                    <motion.div
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative overflow-hidden",
+                        isActive
+                          ? "bg-gradient-to-r from-sidebar-primary/20 to-glow-1/20 text-sidebar-foreground shadow-lg border border-sidebar-primary/20"
+                          : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                      )}
+                    >
+                    {isActive && (
                         <motion.div
-                          whileHover={{ x: 4 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={cn(
-                            "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group relative overflow-hidden",
-                            isActive
-                              ? "bg-gradient-to-r from-sidebar-primary/20 to-glow-1/20 text-sidebar-foreground shadow-lg border border-sidebar-primary/20"
-                              : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
-                          )}
-                        >
-                          {isActive && (
-                            <motion.div
-                              layoutId="activeNav"
-                              className="absolute inset-0 bg-gradient-to-r from-sidebar-primary/10 to-transparent"
-                              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            />
-                          )}
-                          <motion.div
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                            className={cn(
-                              "h-9 w-9 rounded-lg flex items-center justify-center transition-colors",
-                              isActive
-                                ? "bg-gradient-to-br from-sidebar-primary to-glow-1 text-white shadow-lg shadow-sidebar-primary/30"
-                                : "bg-sidebar-accent/50 text-sidebar-foreground/70 group-hover:bg-sidebar-accent"
-                            )}
-                          >
-                            <item.icon className="h-4 w-4" />
-                          </motion.div>
-                          <span className="relative">{item.label}</span>
-                          {isActive && (
-                            <motion.div
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              className="ml-auto"
-                            >
-                              <ChevronRight className="h-4 w-4 text-sidebar-primary" />
-                            </motion.div>
-                          )}
+                          layoutId="activeNav"
+                          className="absolute inset-0 bg-gradient-to-r from-sidebar-primary/10 to-transparent"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )
+                    }
+                    <motion.div
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      className={cn(
+                        "h-9 w-9 rounded-lg flex items-center justify-center transition-colors",
+                        isActive
+                          ? "bg-gradient-to-br from-sidebar-primary to-glow-1 text-white shadow-lg shadow-sidebar-primary/30"
+                          : "bg-sidebar-accent/50 text-sidebar-foreground/70 group-hover:bg-sidebar-accent"
+                      )}
+                    >
+                    <item.icon className="h-4 w-4" />
+                    </motion.div>
+                    <span className="relative">{item.label}</span>
+                    {isActive && (
+                      <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className="ml-auto"
+                      >
+                        <ChevronRight className="h-4 w-4 text-sidebar-primary" />
+                      </motion.div>
+                    )}
+
                         </motion.div>
                       </Link>
                     </motion.div>
                   )
-                })}
+                })
+                }
               </nav>
 
 
@@ -428,3 +432,6 @@ export function DashboardLayout({ children }) {
     </div>
   )
 }
+
+
+

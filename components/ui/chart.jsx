@@ -28,8 +28,7 @@ function ChartContainer({
   children,
   config,
   ...props
-})
-})
+}) {
   const uniqueId = React.useId()
   const chartId = `chart-${id || uniqueId.replace(/:/g, '')}`
 
@@ -45,9 +44,9 @@ function ChartContainer({
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer>
+        <Recharts.ResponsiveContainer>
           {children}
-        </RechartsPrimitive.ResponsiveContainer>
+        </Recharts.ResponsiveContainer>
       </div>
     </ChartContext.Provider>
   )
@@ -86,7 +85,7 @@ ${colorConfig
   )
 }
 
-const ChartTooltip = RechartsPrimitive.Tooltip
+const ChartTooltip = Recharts.Tooltip
 
 function ChartTooltipContent({
   active,
@@ -219,13 +218,13 @@ function ChartTooltipContent({
               )}
             </div>
           )
-        })}
+          })}
       </div>
     </div>
   )
 }
 
-const ChartLegend = RechartsPrimitive.Legend
+const ChartLegend = Recharts.Legend
 
 function ChartLegendContent({
   className,
@@ -270,9 +269,9 @@ function ChartLegendContent({
             {itemConfig?.label}
           </div>
         )
-      })}
+        })}
     </div>
-  )
+)
 }
 
 // Helper to extract item config from a payload.
@@ -322,3 +321,6 @@ export {
   ChartLegendContent,
   ChartStyle,
 }
+
+
+

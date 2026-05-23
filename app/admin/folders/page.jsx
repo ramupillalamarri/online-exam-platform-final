@@ -70,7 +70,7 @@ export default function FoldersPage() {
     setIsEditOpen(true)
   }
 
-  const getExamCount = (folderId: string) => {
+  const getExamCount = (folderId) => {
     return exams.filter((e) => e.folderId === folderId).length
   }
 
@@ -204,8 +204,8 @@ export default function FoldersPage() {
                 </CardContent>
               </Card>
             )
-          })}
-        </div>
+            })
+          }</div>
       )}
 
       {/* Edit Dialog */}
@@ -240,3 +240,6 @@ export default function FoldersPage() {
     </div>
   )
 }
+
+
+

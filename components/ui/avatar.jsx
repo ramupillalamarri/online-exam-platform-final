@@ -10,7 +10,7 @@ function Avatar({
   ...props
 }) {
   return (
-    <AvatarPrimitive.Root
+    <RadixAvatar.Root
       data-slot="avatar"
       className={cn(
         'relative flex size-8 shrink-0 overflow-hidden rounded-full',
@@ -26,7 +26,7 @@ function AvatarImage({
   ...props
 }) {
   return (
-    <AvatarPrimitive.Image
+    <RadixAvatar.Image
       data-slot="avatar-image"
       className={cn('aspect-square size-full', className)}
       {...props}
@@ -39,7 +39,7 @@ function AvatarFallback({
   ...props
 }) {
   return (
-    <AvatarPrimitive.Fallback
+    <RadixAvatar.Fallback
       data-slot="avatar-fallback"
       className={cn(
         'bg-muted flex size-full items-center justify-center rounded-full',
@@ -51,3 +51,5 @@ function AvatarFallback({
 }
 
 export { Avatar, AvatarImage, AvatarFallback }
+
+

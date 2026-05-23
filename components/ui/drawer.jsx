@@ -8,25 +8,25 @@ import { cn } from '@/lib/utils'
 function Drawer({
   ...props
 }) {
-  return <DrawerPrimitive.Root data-slot="drawer" {...props} />
+  return <Drawer.Root data-slot="drawer" {...props} />
 }
 
 function DrawerTrigger({
   ...props
 }) {
-  return <DrawerPrimitive.Trigger data-slot="drawer-trigger" {...props} />
+  return <Drawer.Trigger data-slot="drawer-trigger" {...props} />
 }
 
 function DrawerPortal({
   ...props
 }) {
-  return <DrawerPrimitive.Portal data-slot="drawer-portal" {...props} />
+  return <Drawer.Portal data-slot="drawer-portal" {...props} />
 }
 
 function DrawerClose({
   ...props
 }) {
-  return <DrawerPrimitive.Close data-slot="drawer-close" {...props} />
+  return <Drawer.Close data-slot="drawer-close" {...props} />
 }
 
 function DrawerOverlay({
@@ -34,7 +34,7 @@ function DrawerOverlay({
   ...props
 }) {
   return (
-    <DrawerPrimitive.Overlay
+    <Drawer.Overlay
       data-slot="drawer-overlay"
       className={cn(
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
@@ -53,7 +53,7 @@ function DrawerContent({
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
-      <DrawerPrimitive.Content
+      <Drawer.Content
         data-slot="drawer-content"
         className={cn(
           'group/drawer-content bg-background fixed z-50 flex h-auto flex-col',
@@ -67,7 +67,7 @@ function DrawerContent({
       >
         <div className="bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
         {children}
-      </DrawerPrimitive.Content>
+      </Drawer.Content>
     </DrawerPortal>
   )
 }
@@ -100,7 +100,7 @@ function DrawerTitle({
   ...props
 }) {
   return (
-    <DrawerPrimitive.Title
+    <Drawer.Title
       data-slot="drawer-title"
       className={cn('text-foreground font-semibold', className)}
       {...props}
@@ -113,7 +113,7 @@ function DrawerDescription({
   ...props
 }) {
   return (
-    <DrawerPrimitive.Description
+    <Drawer.Description
       data-slot="drawer-description"
       className={cn('text-muted-foreground text-sm', className)}
       {...props}
@@ -133,3 +133,5 @@ export {
   DrawerTitle,
   DrawerDescription,
 }
+
+

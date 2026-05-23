@@ -361,7 +361,7 @@ export default function StudentHistoryPage() {
                           </TableCell>
                         </motion.tr>
                       )
-                    })}
+                      }) }
                   </TableBody>
                 </Table>
               </div>
@@ -372,3 +372,6 @@ export default function StudentHistoryPage() {
     </div>
   )
 }
+
+
+

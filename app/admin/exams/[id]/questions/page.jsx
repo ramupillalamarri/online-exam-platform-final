@@ -47,9 +47,9 @@ const defaultOptions = [
 ]
 
 export default function QuestionsPage({
-  params,
-})
-})
+  params,  
+}) {
+
   const { id } = use(params)
   const router = useRouter()
   const { exams, getExamQuestions, addQuestion, updateQuestion, deleteQuestion } =
@@ -101,10 +101,10 @@ export default function QuestionsPage({
     setIsDialogOpen(true)
   }
 
-  const updateOption = (id: string, text: string) => {
+  const updateOption = (id, text) => {
     setFormData({
       ...formData,
-      options: formData.options.map((o) => (o.id === id ? { ...o, text })),
+      options: formData.options.map((o) => (o.id === id ? { ...o, text } : o)),
     })
   }
 

@@ -21,7 +21,7 @@ function ToggleGroup({
   ...props
 }) {
   return (
-    <ToggleGroupPrimitive.Root
+    <RadixGroup.Root
       data-slot="toggle-group"
       data-variant={variant}
       data-size={size}
@@ -34,7 +34,7 @@ function ToggleGroup({
       <ToggleGroupContext.Provider value={{ variant, size }}>
         {children}
       </ToggleGroupContext.Provider>
-    </ToggleGroupPrimitive.Root>
+    </RadixGroup.Root>
   )
 }
 
@@ -48,7 +48,7 @@ function ToggleGroupItem({
   const context = React.useContext(ToggleGroupContext)
 
   return (
-    <ToggleGroupPrimitive.Item
+    <RadixGroup.Item
       data-slot="toggle-group-item"
       data-variant={context.variant || variant}
       data-size={context.size || size}
@@ -63,8 +63,10 @@ function ToggleGroupItem({
       {...props}
     >
       {children}
-    </ToggleGroupPrimitive.Item>
+    </RadixGroup.Item>
   )
 }
 
 export { ToggleGroup, ToggleGroupItem }
+
+

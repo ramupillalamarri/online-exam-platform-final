@@ -23,7 +23,7 @@ function Alert({
   className,
   variant,
   ...props
-}:  ) {
+} ) {
   return (
     <div
       data-slot="alert"
@@ -64,3 +64,5 @@ function AlertDescription({
 }
 
 export { Alert, AlertTitle, AlertDescription }
+
+

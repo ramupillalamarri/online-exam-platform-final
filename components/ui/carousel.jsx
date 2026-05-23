@@ -29,7 +29,7 @@ function Carousel({
   className,
   children,
   ...props
-}:  CarouselProps) {
+}, CarouselProps) {
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
@@ -217,3 +217,5 @@ export {
   CarouselPrevious,
   CarouselNext,
 }
+
+

@@ -9,14 +9,14 @@ import { cn } from '@/lib/utils'
 function ContextMenu({
   ...props
 }) {
-  return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />
+  return <RadixMenu.Root data-slot="context-menu" {...props} />
 }
 
 function ContextMenuTrigger({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.Trigger data-slot="context-menu-trigger" {...props} />
+    <RadixMenu.Trigger data-slot="context-menu-trigger" {...props} />
   )
 }
 
@@ -24,7 +24,7 @@ function ContextMenuGroup({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.Group data-slot="context-menu-group" {...props} />
+    <RadixMenu.Group data-slot="context-menu-group" {...props} />
   )
 }
 
@@ -32,21 +32,21 @@ function ContextMenuPortal({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.Portal data-slot="context-menu-portal" {...props} />
+    <RadixMenu.Portal data-slot="context-menu-portal" {...props} />
   )
 }
 
 function ContextMenuSub({
   ...props
 }) {
-  return <ContextMenuPrimitive.Sub data-slot="context-menu-sub" {...props} />
+  return <RadixMenu.Sub data-slot="context-menu-sub" {...props} />
 }
 
 function ContextMenuRadioGroup({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.RadioGroup
+    <RadixMenu.RadioGroup
       data-slot="context-menu-radio-group"
       {...props}
     />
@@ -58,10 +58,9 @@ function ContextMenuSubTrigger({
   inset,
   children,
   ...props
-})
-})
+}) {
   return (
-    <ContextMenuPrimitive.SubTrigger
+    <RadixMenu.SubTrigger
       data-slot="context-menu-sub-trigger"
       data-inset={inset}
       className={cn(
@@ -72,7 +71,7 @@ function ContextMenuSubTrigger({
     >
       {children}
       <ChevronRightIcon className="ml-auto" />
-    </ContextMenuPrimitive.SubTrigger>
+    </RadixMenu.SubTrigger>
   )
 }
 
@@ -81,7 +80,7 @@ function ContextMenuSubContent({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.SubContent
+    <RadixMenu.SubContent
       data-slot="context-menu-sub-content"
       className={cn(
         'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg',
@@ -97,8 +96,8 @@ function ContextMenuContent({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.Portal>
-      <ContextMenuPrimitive.Content
+    <RadixMenu.Portal>
+      <RadixMenu.Content
         data-slot="context-menu-content"
         className={cn(
           'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md',
@@ -106,7 +105,7 @@ function ContextMenuContent({
         )}
         {...props}
       />
-    </ContextMenuPrimitive.Portal>
+    </RadixMenu.Portal>
   )
 }
 
@@ -115,10 +114,9 @@ function ContextMenuItem({
   inset,
   variant = 'default',
   ...props
-})
-})
+}) {
   return (
-    <ContextMenuPrimitive.Item
+    <RadixMenu.Item
       data-slot="context-menu-item"
       data-inset={inset}
       data-variant={variant}
@@ -138,7 +136,7 @@ function ContextMenuCheckboxItem({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.CheckboxItem
+    <RadixMenu.CheckboxItem
       data-slot="context-menu-checkbox-item"
       className={cn(
         "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -148,12 +146,12 @@ function ContextMenuCheckboxItem({
       {...props}
     >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
-        <ContextMenuPrimitive.ItemIndicator>
+        <RadixMenu.ItemIndicator>
           <CheckIcon className="size-4" />
-        </ContextMenuPrimitive.ItemIndicator>
+        </RadixMenu.ItemIndicator>
       </span>
       {children}
-    </ContextMenuPrimitive.CheckboxItem>
+    </RadixMenu.CheckboxItem>
   )
 }
 
@@ -163,7 +161,7 @@ function ContextMenuRadioItem({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.RadioItem
+    <RadixMenu.RadioItem
       data-slot="context-menu-radio-item"
       className={cn(
         "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -172,12 +170,12 @@ function ContextMenuRadioItem({
       {...props}
     >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
-        <ContextMenuPrimitive.ItemIndicator>
+        <RadixMenu.ItemIndicator>
           <CircleIcon className="size-2 fill-current" />
-        </ContextMenuPrimitive.ItemIndicator>
+        </RadixMenu.ItemIndicator>
       </span>
       {children}
-    </ContextMenuPrimitive.RadioItem>
+    </RadixMenu.RadioItem>
   )
 }
 
@@ -185,10 +183,9 @@ function ContextMenuLabel({
   className,
   inset,
   ...props
-})
-})
+}) {
   return (
-    <ContextMenuPrimitive.Label
+    <RadixMenu.Label
       data-slot="context-menu-label"
       data-inset={inset}
       className={cn(
@@ -205,7 +202,7 @@ function ContextMenuSeparator({
   ...props
 }) {
   return (
-    <ContextMenuPrimitive.Separator
+    <RadixMenu.Separator
       data-slot="context-menu-separator"
       className={cn('bg-border -mx-1 my-1 h-px', className)}
       {...props}
@@ -246,3 +243,6 @@ export {
   ContextMenuSubTrigger,
   ContextMenuRadioGroup,
 }
+
+
+

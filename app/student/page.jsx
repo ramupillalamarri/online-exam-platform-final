@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   XCircle,
   HelpCircle,
-  Sparkles,
   Target,
   Flame,
   Zap,

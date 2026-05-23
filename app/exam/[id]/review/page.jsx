@@ -34,8 +34,7 @@ import { toast } from "sonner"
 
 export default function ReviewPage({
   params,
-})
-})
+}) {
   const { id } = use(params)
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -372,7 +371,8 @@ export default function ReviewPage({
                           )}
                         </div>
                       )
-                    })}
+                    }
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -453,6 +453,7 @@ export default function ReviewPage({
                           {index + 1}
                         </button>
                       )
+                    
                     })}
                   </div>
 

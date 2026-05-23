@@ -5,14 +5,14 @@ import * as RadixCollapsible from '@radix-ui/react-collapsible'
 function Collapsible({
   ...props
 }) {
-  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />
+  return <RadixCollapsible.Root data-slot="collapsible" {...props} />
 }
 
 function CollapsibleTrigger({
   ...props
 }) {
   return (
-    <CollapsiblePrimitive.CollapsibleTrigger
+    <RadixCollapsible.CollapsibleTrigger
       data-slot="collapsible-trigger"
       {...props}
     />
@@ -23,7 +23,7 @@ function CollapsibleContent({
   ...props
 }) {
   return (
-    <CollapsiblePrimitive.CollapsibleContent
+    <RadixCollapsible.CollapsibleContent
       data-slot="collapsible-content"
       {...props}
     />
@@ -31,3 +31,5 @@ function CollapsibleContent({
 }
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent }
+
+

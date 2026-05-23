@@ -22,8 +22,8 @@ import { toast } from "sonner"
 
 export default function EditExamPage({
   params,
-})
-})
+}) {
+
   const { id } = use(params)
   const router = useRouter()
   const { exams, folders, updateExam } = useExamStore()
@@ -71,7 +71,7 @@ export default function EditExamPage({
     )
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!formData.title.trim()) {

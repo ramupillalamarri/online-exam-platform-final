@@ -10,8 +10,7 @@ function InputOTP({
   className,
   containerClassName,
   ...props
-})
-})
+}) {
   return (
     <OTPInput
       data-slot="input-otp"
@@ -39,8 +38,7 @@ function InputOTPSlot({
   index,
   className,
   ...props
-})
-})
+}) {
   const inputOTPContext = React.useContext(OTPInputContext)
   const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
 
@@ -73,3 +71,6 @@ function InputOTPSeparator({ ...props }) {
 }
 
 export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator }
+
+
+

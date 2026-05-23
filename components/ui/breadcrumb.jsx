@@ -35,8 +35,7 @@ function BreadcrumbLink({
   asChild,
   className,
   ...props
-})
-})
+}) {
   const Comp = asChild ? Slot : 'a'
 
   return (
@@ -106,3 +105,6 @@ export {
   BreadcrumbSeparator,
   BreadcrumbEllipsis,
 }
+
+
+

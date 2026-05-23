@@ -157,8 +157,7 @@ function FieldSeparator({
   children,
   className,
   ...props
-})
-})
+}) {
   return (
     <div
       data-slot="field-separator"
@@ -187,8 +186,7 @@ function FieldError({
   children,
   errors,
   ...props
-})
-})
+}) {
   const content = useMemo(() => {
     if (children) {
       return children
@@ -240,3 +238,6 @@ export {
   FieldContent,
   FieldTitle,
 }
+
+
+

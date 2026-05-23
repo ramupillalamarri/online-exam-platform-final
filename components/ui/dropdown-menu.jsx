@@ -6,6 +6,8 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
+const DropdownMenuPrimitive = RadixMenu
+
 function DropdownMenu({
   ...props
 }) {
@@ -64,8 +66,7 @@ function DropdownMenuItem({
   inset,
   variant = 'default',
   ...props
-})
-})
+}) {
   return (
     <DropdownMenuPrimitive.Item
       data-slot="dropdown-menu-item"
@@ -145,8 +146,7 @@ function DropdownMenuLabel({
   className,
   inset,
   ...props
-})
-})
+}) {
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
@@ -200,8 +200,7 @@ function DropdownMenuSubTrigger({
   inset,
   children,
   ...props
-})
-})
+}) {
   return (
     <DropdownMenuPrimitive.SubTrigger
       data-slot="dropdown-menu-sub-trigger"
@@ -251,3 +250,6 @@ export {
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
 }
+
+
+

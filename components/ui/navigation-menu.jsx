@@ -11,9 +11,8 @@ function NavigationMenu({
   viewport = true,
   ...props
 })
-})
   return (
-    <NavigationMenuPrimitive.Root
+    <RadixMenu.Root
       data-slot="navigation-menu"
       data-viewport={viewport}
       className={cn(
@@ -24,16 +23,16 @@ function NavigationMenu({
     >
       {children}
       {viewport && <NavigationMenuViewport />}
-    </NavigationMenuPrimitive.Root>
+    </RadixMenu.Root>
   )
-}
+
 
 function NavigationMenuList({
   className,
   ...props
 }) {
   return (
-    <NavigationMenuPrimitive.List
+    <RadixMenu.List
       data-slot="navigation-menu-list"
       className={cn(
         'group flex flex-1 list-none items-center justify-center gap-1',
@@ -49,7 +48,7 @@ function NavigationMenuItem({
   ...props
 }) {
   return (
-    <NavigationMenuPrimitive.Item
+    <RadixMenu.Item
       data-slot="navigation-menu-item"
       className={cn('relative', className)}
       {...props}
@@ -67,7 +66,7 @@ function NavigationMenuTrigger({
   ...props
 }) {
   return (
-    <NavigationMenuPrimitive.Trigger
+    <RadixMenu.Trigger
       data-slot="navigation-menu-trigger"
       className={cn(navigationMenuTriggerStyle(), 'group', className)}
       {...props}
@@ -86,7 +85,7 @@ function NavigationMenuContent({
   ...props
 }) {
   return (
-    <NavigationMenuPrimitive.Content
+    <RadixMenu.Content
       data-slot="navigation-menu-content"
       className={cn(
         'data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 top-0 left-0 w-full p-2 pr-2.5 md:absolute md:w-auto',
@@ -106,7 +105,7 @@ function NavigationMenuViewport({
     <div
       className="absolute top-full left-0 isolate z-50 flex justify-center"
     >
-      <NavigationMenuPrimitive.Viewport
+      <RadixMenu.Viewport
         data-slot="navigation-menu-viewport"
         className={cn(
           'origin-top-center bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border shadow md:w-[var(--radix-navigation-menu-viewport-width)]',
@@ -123,7 +122,7 @@ function NavigationMenuLink({
   ...props
 }) {
   return (
-    <NavigationMenuPrimitive.Link
+    <RadixMenu.Link
       data-slot="navigation-menu-link"
       className={cn(
         "data-[active=true]:focus:bg-accent data-[active=true]:hover:bg-accent data-[active=true]:bg-accent/50 data-[active=true]:text-accent-foreground hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus-visible:ring-ring/50 [&_svg:not([class*='text-'])]:text-muted-foreground flex flex-col gap-1 rounded-sm p-2 text-sm transition-all outline-none focus-visible:ring-[3px] focus-visible:outline-1 [&_svg:not([class*='size-'])]:size-4",
@@ -139,7 +138,7 @@ function NavigationMenuIndicator({
   ...props
 }) {
   return (
-    <NavigationMenuPrimitive.Indicator
+    <RadixMenu.Indicator
       data-slot="navigation-menu-indicator"
       className={cn(
         'data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden',
@@ -163,3 +162,5 @@ export {
   NavigationMenuViewport,
   navigationMenuTriggerStyle,
 }
+
+
