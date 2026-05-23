@@ -175,30 +175,6 @@ export default function ReviewPage({
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 h-full">
           <div className="flex flex-col h-full space-y-3">
             <div className="space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
-                  disabled={currentQuestionIndex === 0}
-                  className="px-2 sm:px-3 h-8 text-sm"
-                >
-                  <ChevronLeft className="h-3.5 w-3.5 mr-0.5" />
-                  Previous
-                </Button>
-                <span className="text-xs sm:text-xs font-medium text-muted-foreground">
-                  {currentQuestionIndex + 1} / {questions.length}
-                </span>
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
-                  disabled={currentQuestionIndex === questions.length - 1}
-                  className="px-2 sm:px-3 h-8 text-sm"
-                >
-                  Next
-                  <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
-                </Button>
-              </div>
-
               <Card className="border-border/50 shadow-sm">
                 <CardContent className="p-2">
                   <h3 className="font-semibold text-xs text-foreground mb-2">Questions</h3>
@@ -246,9 +222,33 @@ export default function ReviewPage({
                 </CardContent>
               </Card>
 
-              <div className="mt-2">
+              <div className="flex items-center justify-between gap-3 mt-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentQuestionIndex((prev) => prev - 1)}
+                  disabled={currentQuestionIndex === 0}
+                  className="px-3 sm:px-4 h-10 text-sm"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Previous
+                </Button>
+                <span className="text-sm font-medium text-muted-foreground">
+                  {currentQuestionIndex + 1} / {questions.length}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentQuestionIndex((prev) => prev + 1)}
+                  disabled={currentQuestionIndex === questions.length - 1}
+                  className="px-3 sm:px-4 h-10 text-sm"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+
+              <div className="mt-4">
                 <Link href={`/exam/${id}/result?attempt=${attemptId}`}>
-                  <Button variant="outline" className="w-full border-dashed hover:border-primary/50 text-[10px] h-7">
+                  <Button variant="outline" className="w-full border-dashed hover:border-primary/50 text-[10px] h-8">
                     <ArrowLeft className="h-3 w-3 mr-1" />
                     Back to Results Summary
                   </Button>
@@ -293,12 +293,12 @@ export default function ReviewPage({
                     )}
                   </div>
 
-                  <div className="flex-1 overflow-y-auto space-y-2">
-                    <p className="text-sm sm:text-base font-medium text-foreground">
+                  <div className="flex-1 overflow-y-auto space-y-4">
+                    <p className="text-base sm:text-xl font-semibold leading-8 text-foreground">
                       {currentQuestion.questionText}
                     </p>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {currentQuestion.options.map((option) => {
                         const isSelected = currentAnswer?.selectedOptionId === option.id
                         const isCorrectOption = option.id === currentQuestion.correctOptionId
@@ -306,7 +306,7 @@ export default function ReviewPage({
                         return (
                           <div
                             key={option.id}
-                            className={`flex items-center gap-2 p-2.5 rounded-lg border transition-all ${
+                            className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
                               isCorrectOption
                                 ? "border-success bg-success/10 shadow-sm"
                                 : isSelected
@@ -315,7 +315,7 @@ export default function ReviewPage({
                             }`}
                           >
                             <span
-                              className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold uppercase shrink-0 ${
+                              className={`h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold uppercase shrink-0 ${
                                 isCorrectOption
                                   ? "bg-success text-white shadow-md shadow-success/20"
                                   : isSelected
@@ -325,7 +325,7 @@ export default function ReviewPage({
                             >
                               {option.id}
                             </span>
-                            <span className={`flex-1 text-xs sm:text-sm leading-snug ${isCorrectOption ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                            <span className={`flex-1 text-sm sm:text-base leading-relaxed ${isCorrectOption ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
                               {option.text}
                             </span>
                             {isCorrectOption && (
@@ -360,8 +360,8 @@ export default function ReviewPage({
             </div>
           </div>
 
-          <aside className="flex flex-col h-full">
-            <Card className="border-border/50 shadow-sm h-full overflow-hidden">
+          <aside className="flex flex-col h-full min-h-0">
+            <Card className="border-border/50 shadow-sm h-full min-h-0 overflow-hidden">
               <CardHeader className="border-b border-border/50 bg-muted/30 p-4">
                 <div className="flex items-center gap-2 text-primary">
                   <Sparkles className="h-5 w-5" />
@@ -371,8 +371,8 @@ export default function ReviewPage({
                   Ask your question about the current review and get a guided explanation.
                 </p>
               </CardHeader>
-              <CardContent className="flex flex-col p-4 h-full">
-                <ScrollArea className="flex-1 pr-4 -mr-4">
+              <CardContent className="flex flex-col p-4 h-full min-h-0">
+                <ScrollArea className="flex-1 pr-4 -mr-4 min-h-0">
                   <div className="space-y-4 pr-4">
                     <div className="flex gap-3">
                       <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-md">
